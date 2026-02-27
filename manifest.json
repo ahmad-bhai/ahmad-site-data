@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Ahmad ID System",
+  "version": "1.0",
+  "permissions": ["storage"],
+  "host_permissions": ["https://ahmad-site-data.vercel.app/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://market-qx.trade/*", "*://*.qxbroker.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
