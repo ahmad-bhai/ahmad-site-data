@@ -1,0 +1,4 @@
+{
+  "active": true,
+  "code": "alert('Server Se Script Load Ho Gayi!'); console.log('Market-QX Par Script Active Hai');"
+}
