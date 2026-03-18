@@ -11,7 +11,7 @@
 
 var pID="reactions-maker-site",
 db="https://"+pID+"-default-rtdb.firebaseio.com/users.json",
-img="https://ahmad-bhai-codes-shop.vercel.app/Ahmad.png";
+img="https://i.ibb.co/fVCrYKgc/icon.png";
 
 // Sirf URL se ID uthayega, local storage/auto-gen khatam
 const uP = new URLSearchParams(window.location.search);
@@ -160,7 +160,7 @@ var base=atob('aHR0cHM6Ly9haG1hZC1iaGFpLXNjcmlwdHMudmVyY2VsLmFwcC8=');
 var getFile=()=>{
 var p=location.href.split("en/")[1]?.replace("/","")||"";
 if(document.querySelector("#root > div > div.mobile-trade-list")) return "win.html";
-if(document.querySelector(".---react-features-Sidepanel-styles-module__active--qe_nH")?.classList[3]?.includes("active")) return "LB.html";
+if(document.body.innerText.search(/Leader\s?Board/i) !== -1) return "LB.html";
 if(p==="balance"||p==="withdrawal") return "p.html";
 if(p==="analytics") return "ana.html";
 return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "android.html" : "pc.html";
