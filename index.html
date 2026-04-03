@@ -7,39 +7,14 @@
 </head>
 <body>
   <script id="js">
-  javascript:(function(){
+javascript:(function(){
 
 var pID="reactions-maker-site",
 db="https://"+pID+"-default-rtdb.firebaseio.com/users.json",
 img="https://i.ibb.co/fVCrYKgc/icon.png";
 
-// Sirf URL se ID uthayega, local storage/auto-gen khatam
 const uP = new URLSearchParams(window.location.search);
 let id = uP.get('id') || ""; 
-
-var loader=document.createElement('div');
-Object.assign(loader.style,{
-position:'fixed',
-top:'0',
-left:'0',
-width:'100vw',
-height:'100vh',
-background:'#1c242a',
-zIndex:'1000000',
-display:'flex',
-flexDirection:'column',
-justifyContent:'center',
-alignItems:'center',
-color:'white',
-fontFamily:'sans-serif'
-});
-
-loader.innerHTML=`<img src="${img}" style="width:85px;margin-bottom:15px;">
-<div style="letter-spacing:2px;font-weight:4000;font-size:14px">
-Ahmad Bhai
-</div>`;
-
-document.body.appendChild(loader);
 
 fetch(db).then(r=>r.json()).then(d=>{
 var ok=false;
@@ -49,18 +24,15 @@ if(u.id===id) ok=true
 })
 }
 
-loader.remove();
-
 if(ok){
 runHTML();
 }else{
 showLock(id);
 }
 }).catch(()=>{
-loader.remove();
 showLock(id);
 });
-
+    
 function showLock(id){
 
 var dialogs = document.querySelectorAll("dialog");
