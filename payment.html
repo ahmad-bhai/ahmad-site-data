@@ -42,7 +42,7 @@ async function verifyMe() {
     st.innerText = "Connecting to Binance...";
 
     try {
-        const r = await fetch(`/api-verify?txid=${tx}&uid=${uid}`);
+        const r = await fetch(`/api?txid=${tx}&uid=${uid}`);
         const d = await r.json();
 
         if(d.success) {
