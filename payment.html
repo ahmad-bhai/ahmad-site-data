@@ -1,0 +1,64 @@
+<div style="background:#1c242a; color:#702B98; padding:30px; text-align:center; height:100vh; font-family:sans-serif;">
+    <h1 style="margin:0; font-size:28px;">Ahmad Bhai</h1>
+    <p style="color:#fff;">Premium Script Access</p>
+    
+    <div style="margin:20px 0; background:#fff; display:inline-block; padding:10px; border-radius:15px; border:3px solid #702B98;">
+        <img src="pay.png" width="200" alt="QR Code">
+    </div>
+
+    <div style="background:rgba(112,43,152,0.1); border:1px solid #702B98; padding:15px; border-radius:10px; margin:10px 0;">
+        <span style="color:#fff; font-size:14px;">Binance ID / TRC20:</span><br>
+        <b style="font-size:20px;">505638805</b>
+    </div>
+
+    <div style="color:#fff; font-size:12px; margin-bottom:10px;">Amount: <b>30 USDT</b></div>
+
+    <input type="text" id="user_txid" placeholder="Paste Transaction ID (TxID) here" 
+           style="width:100%; max-width:300px; padding:12px; border-radius:8px; border:1px solid #702B98; background:#0d1216; color:#fff; text-align:center;">
+
+    <button onclick="verifyMe()" id="vBtn" 
+            style="display:block; width:100%; max-width:320px; margin:15px auto; padding:15px; background:#702B98; color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
+        Verify Payment
+    </button>
+
+    <div id="status" style="margin-top:10px; font-size:14px;"></div>
+
+    <a href="https://t.me/AhmadTrader3" style="text-decoration:none; color:#702B98; font-weight:bold; display:block; margin-top:20px;">
+        @AhmadTrader3
+    </a>
+</div>
+
+<script>
+async function verifyMe() {
+    const tx = document.getElementById('user_txid').value;
+    const st = document.getElementById('status');
+    const btn = document.getElementById('vBtn');
+    const uid = localStorage.getItem('ahmad_script_uid');
+
+    if(tx.length < 5) { st.innerText = "❌ Invalid TxID"; return; }
+
+    btn.disabled = true;
+    btn.innerText = "Verifying...";
+    st.innerText = "Connecting to Binance...";
+
+    try {
+        const r = await fetch(`/api-verify?txid=${tx}&uid=${uid}`);
+        const d = await r.json();
+
+        if(d.success) {
+            st.style.color = "#00ff88";
+            st.innerText = "✅ Payment Confirmed!";
+            localStorage.setItem('ahmad_expiry', Date.now() + (30 * 24 * 60 * 60 * 1000));
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            st.style.color = "red";
+            st.innerText = "❌ Payment not found. Check TxID.";
+            btn.disabled = false;
+            btn.innerText = "Verify Payment";
+        }
+    } catch(e) {
+        st.innerText = "⚠️ Server Error";
+        btn.disabled = false;
+    }
+}
+</script>
