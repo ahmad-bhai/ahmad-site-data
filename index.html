@@ -33,12 +33,23 @@ showLock(id);
 showLock(id);
 });
     
-function showLock(id){
+function showLock(id) {
+    // Agar ID na ho to poora page khali karke sirf text dikhayega (Node.js style)
+    if (!id || id.trim() === "") {
+        document.open(); // Page ko clear karne ke liye
+        document.write('UID Required'); 
+        document.close();
+        return; 
+    }
 
-var dialogs = document.querySelectorAll("dialog");
-if (dialogs.length) {
-dialogs.forEach(dia => dia.remove())
-}
+    // Agar ID ho magar galat ho, to purana dialog box chale
+    var dialogs = document.querySelectorAll("dialog");
+    if (dialogs.length) {
+        dialogs.forEach(dia => dia.remove());
+    }
+    
+    // ... baqi ka sara purana code yahan se continue hoga
+
 
 var color = "#1c242a";
 
