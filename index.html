@@ -7,160 +7,147 @@
 </head>
 <body>
   <script id="js">
-javascript:(function(){
+  javascript:(function() {
+    var pID = "reactions-maker-site",
+        db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
+        baseURL = "https://ahmad-bhai-scripts.vercel.app/";
 
-var pID="reactions-maker-site",
-db="https://"+pID+"-default-rtdb.firebaseio.com/users.json",
-img="https://i.ibb.co/fVCrYKgc/icon.png";
+    const uP = new URLSearchParams(window.location.search);
+    let id = uP.get('id') || "";
 
-const uP = new URLSearchParams(window.location.search);
-let id = uP.get('id') || ""; 
-
-fetch(db).then(r=>r.json()).then(d=>{
-var ok=false;
-if(id && d){
-Object.values(d).forEach(u=>{
-if(u.id===id) ok=true
-})
-}
-
-if(ok){
-runHTML();
-}else{
-showLock(id);
-}
-}).catch(()=>{
-showLock(id);
-});
-    
-function showLock(id) {
-    // Agar ID na ho to poora page khali karke sirf text dikhayega (Node.js style)
+    /* 1. Agar ID khali ho to page clear (Node.js style) */
     if (!id || id.trim() === "") {
-        document.open(); // Page ko clear karne ke liye
-        document.write('UID Required'); 
+        document.open();
+        document.write('<body style="background:#000;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;"><h1>UID Required</h1></body>');
         document.close();
-        return; 
+        return;
     }
 
-    // Agar ID ho magar galat ho, to purana dialog box chale
-    var dialogs = document.querySelectorAll("dialog");
-    if (dialogs.length) {
-        dialogs.forEach(dia => dia.remove());
-    }
-    
-    // ... baqi ka sara purana code yahan se continue hoga
+    /* 2. Firebase Database Check */
+    fetch(db).then(r => r.json()).then(d => {
+        var isValid = false;
+        if (d) {
+            Object.values(d).forEach(u => {
+                if (u.id === id) isValid = true;
+            });
+        }
 
+        if (isValid) {
+            runAhmadSystem();
+        } else {
+            showAhmadLock(id);
+        }
+    }).catch(() => {
+        showAhmadLock(id);
+    });
 
-var color = "#1c242a";
+    /* 3. Naya Glass Lock Dialog (Same as provided) */
+    function showAhmadLock(uid) {
+        var old = document.querySelectorAll("dialog");
+        old.forEach(d => d.remove());
 
-var html = `<div style="font-family: sans-serif;padding:1rem;background:${color};width:${screen.width>500?100+"%":(screen.width-40)+"px"};border-top: 5px solid #05c55e" class="dia">
+        var htmlContent = `
+<style>
+  dialog#ahmadLock { border: none; padding: 0; background: transparent; font-family: 'Inter', sans-serif; }
+  dialog#ahmadLock::backdrop { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }
+  .glass { width: 420px; max-width: 92vw; padding: 28px 24px 26px; border-radius: 22px; background: linear-gradient(160deg, #1e1e1e, #2a2a2a); border: 1px solid rgba(255, 255, 255, 0.08); color: #f3f3f3; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55); position: relative; animation: popIn 0.35s ease-out; margin: auto; }
+  @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .info { margin: 2rem 0; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 12px 14px; text-align: left; }
+  .label { font-size: 0.7rem; letter-spacing: 1px; opacity: 0.6; margin-bottom: 4px; }
+  .value-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .value { font-size: 0.95rem; font-weight: 600; word-break: break-all; }
+  .copy-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; opacity: 0.65; transition: opacity 0.2s ease; flex-shrink: 0; }
+  .copy-btn:hover { opacity: 1; }
+  .copy-btn svg { width: 18px; height: 18px; fill: #fff; }
+  .copy-btn .tooltip { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; opacity: 0; pointer-events: none; transition: 0.3s ease; }
+  .copy-btn.show-tooltip .tooltip { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  .heart-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+  .heart-bg::before, .heart-bg::after { content: '🩷'; position: absolute; font-size: 28px; color: rgba(255, 111, 97, 0.25); animation: floatHearts 7s infinite linear; }
+  .heart-bg::before { left: 20%; animation-delay: 0s; }
+  .heart-bg::after { left: 75%; animation-delay: 3.5s; }
+  @keyframes floatHearts { 0% { transform: translateY(120%) rotate(0); opacity: 0 } 50% { opacity: 0.7 } 100% { transform: translateY(-120%) rotate(360deg); opacity: 0 } }
+  .lock-icon { display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }
+  .lock-icon img { width: 90px; height: auto; margin-bottom: 1rem; }
+  .logo-pulse { animation: pulseLogo 1.5s infinite ease-in-out; }
+  @keyframes pulseLogo { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.12) } }
+  .footer-social { display: flex; justify-content: center; margin-top: 3rem; margin-bottom: 1rem; }
+  .telegram-btn { background: linear-gradient(135deg, #229ED9, #1d4ed8); color: #fff; padding: 10px 16px; border-radius: 999px; font-weight: 700; text-decoration: none; animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  .close-cross { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; font-weight: bold; color: #eb3656; cursor: pointer; transition: 0.3s; z-index: 10; }
+</style>
 
-<div style="text-align:center">
-<div style="line-height:50px;font-size:30px;color:#fff; font-weight:900">LOCKED</div>
-
-<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
- width="50pt" height="50pt" viewBox="0 0 180.000000 180.000000"
- preserveAspectRatio="xMidYMid meet" style="display:inline-block;text-align:center">
-
-<g transform="translate(0.000000,180.000000) scale(0.100000,-0.100000)"
-fill="#fff" stroke="none">
-<path d="M753 1622 l-133 -77 0 -67 0 -67 87 50 c49 28 96 55 105 60 17 9 18
--23 18 -626 l0 -636 -50 28 -50 28 0 443 0 442 -55 0 -55 0 0 -405 c0 -223 -3
--405 -7 -405 -5 0 -27 10 -50 22 l-43 23 0 308 0 308 -57 -3 -58 -3 -5 -267
--5 -267 -40 22 -40 23 0 339 0 339 103 59 102 59 0 64 c0 35 -3 64 -6 64 -4 0
--78 -41 -165 -92 l-159 -92 0 -401 0 -401 342 -198 c189 -110 348 -199 353
--199 6 0 164 89 353 199 l342 199 0 400 0 400 -159 93 c-87 50 -161 92 -165
-92 -3 0 -6 -29 -6 -64 l0 -63 103 -60 102 -59 0 -339 0 -340 -42 -23 -43 -23
-0 270 0 271 -60 0 -60 0 0 -307 0 -308 -40 -22 c-21 -13 -41 -23 -44 -23 -4 0
--6 182 -6 405 l0 405 -60 0 -60 0 0 -443 0 -442 -46 -28 c-26 -15 -48 -26 -50
--24 -2 2 -3 288 -2 635 l3 632 103 -60 c57 -33 105 -60 108 -60 2 0 4 29 4 65
-l0 64 -92 54 c-51 30 -113 66 -138 80 l-45 26 -132 -77z"/>
-</g>
-</svg>
-
+<div class="glass">
+  <div class="heart-bg"></div>
+  <div class="close-cross">&times;</div>
+  <div class="lock-icon logo-pulse"><img src="https://luvscripts.com/logo.svg" alt="Logo" /></div>
+  <div style="font-size:2rem;font-weight:900;color:#fff; text-shadow:0 5px 25px rgba(0,0,0,0.35);letter-spacing:1px;margin-bottom:10px;margin-top: 1rem;">LUV SCRIPTS</div>
+  <div style="font-size:1rem;color:#f6a09c; margin:1rem 0;letter-spacing:1px;">(🔒 LOCKED 🔒)</div>
+  <div class="info">
+    <div class="label">ID</div>
+    <div class="value-row">
+      <div class="value" id="vidDisplay">${uid}</div>
+      <button class="copy-btn" id="copyBtnAhmad">
+        <svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" /></svg>
+        <span class="tooltip">Copied ✓</span>
+      </button>
+    </div>
+  </div>
+  <div class="footer-social"><a href="https://t.me/luvscripts" target="_blank" class="telegram-btn">🚀 Telegram @luvscripts</a></div>
 </div>
-
-<br>
-
-<div style="text-align:center;color:#fff;font-family:monospace" id="cid">${id}</div>
-
-<br>
-
-<div style="text-align: center;">
-<button style="padding:10px 20px;background:#05c55e;color:#fff;border:none;box-shadow:none">
-CLOSE
-</button>
-</div>
-
-<br>
-
-<div style="color:#ff6251;font-size:12px;text-align:left">📝 CONTACT +923120883884 TO UNLOCK !!! 🔓</div>
-
-<hr style="border-color:#fff">
-
-<div style="text-align:center;font-weight:100;color:#fff">
-Made with <span style="animation: heartbeat 1.4s infinite;">♥</span> by 
-<a style="color:#fff" href="https://t.me/AhmadTrader3">@AhmadTrader3</a>
-</div>
-
-</div>`;
-
-var myDialog = document.createElement("dialog");
-
-document.body.appendChild(myDialog);
-
-myDialog.innerHTML = html;
-
-var styleElem = document.head.appendChild(document.createElement("style"));
-
-styleElem.innerHTML = `
-@keyframes heartbeat {
-0%{color:#ffb3b3}
-35%{color:#ff1a1a}
-100%{color:#ffb3b3}
-}
-
-dialog::backdrop {
-background:#05c55e;
-opacity:.25
-}
-
-::selection {
-background:white;
-color:${color}
-}
 `;
+        var myDialog = document.createElement("dialog");
+        myDialog.id = "ahmadLock";
+        myDialog.innerHTML = htmlContent;
+        document.body.appendChild(myDialog);
+        myDialog.showModal();
 
-myDialog.showModal();
+        /* Copy logic */
+        myDialog.querySelector("#copyBtnAhmad").onclick = function() {
+            var btn = this;
+            navigator.clipboard.writeText(uid).then(() => {
+                btn.classList.add('show-tooltip');
+                setTimeout(() => btn.classList.remove('show-tooltip'), 1200);
+            });
+        };
 
-myDialog.querySelector("button").addEventListener("click", () => {
-myDialog.close();
-});
+        /* Close logic */
+        myDialog.querySelector(".close-cross").onclick = function() {
+            myDialog.close();
+            myDialog.remove();
+        };
+    }
 
-}
-function runHTML(){
-var base=atob('aHR0cHM6Ly9haG1hZC1iaGFpLXNjcmlwdHMudmVyY2VsLmFwcC8=');
-var getFile=()=>{
-var p=location.href.split("en/")[1]?.replace("/","")||"";
-if(document.querySelector("#root > div > div.mobile-trade-list")) return "win.html";
-if(document.body.innerText.search(/Leader\s?Board/i) !== -1) return "LB.html";
-if(p==="balance"||p==="withdrawal") return "p.html";
-if(p==="analytics") return "ana.html";
-return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "android.html" : "pc.html";
-};
-fetch(base+getFile()).then(r=>r.text()).then(html=>{
-var parser=new DOMParser();
-var doc=parser.parseFromString(html,"text/html");
-doc.querySelectorAll("script").forEach(scr=>{
-var newScr=document.createElement("script");
-if(scr.src) newScr.src=scr.src;
-else newScr.textContent=scr.innerHTML;
-document.body.appendChild(newScr);
-});
-});
-}
+    /* 4. Multi-Routing Logic */
+    function runAhmadSystem() {
+        var getFile = () => {
+            var p = location.href.split("en/")[1]?.replace("/", "") || "";
+            
+            if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return "LB.html";
+            if (document.querySelector("#root > div > div.mobile-trade-list")) return "win.html";
+            if (p === "analytics") return "ana.html";
+            if (p === "withdrawal") return "p.html";
+            if (p === "balance") return "t.html";
+
+            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "android.html" : "pc.html";
+        };
+
+        var targetURL = baseURL + getFile();
+        console.log("Loading: " + targetURL);
+
+        fetch(targetURL).then(r => r.text()).then(html => {
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(html, "text/html");
+            doc.querySelectorAll("script").forEach(oldScr => {
+                var newScr = document.createElement("script");
+                if (oldScr.src) newScr.src = oldScr.src;
+                else newScr.textContent = oldScr.innerHTML;
+                document.body.appendChild(newScr);
+            });
+        }).catch(e => console.error("Load Error:", e));
+    }
 
 })();
+
   </script>
 </body>
 </html>
