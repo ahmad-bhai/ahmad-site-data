@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Not Found</title>
-</head>
-<body>
-  <script id="js">
-  javascript:(function() {
+javascript:(function() {
     var pID = "reactions-maker-site",
         db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
         baseURL = "https://ahmad-bhai-scripts.vercel.app/";
@@ -15,7 +6,7 @@
     const uP = new URLSearchParams(window.location.search);
     let id = uP.get('id') || "";
 
-    /* 1. Agar ID khali ho to page clear (Node.js style) */
+    /* 1. UID Check: Agar ID nahi hai to page blank */
     if (!id || id.trim() === "") {
         document.open();
         document.write('<body style="background:#000;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;"><h1>UID Required</h1></body>');
@@ -41,7 +32,7 @@
         showAhmadLock(id);
     });
 
-    /* 3. Naya Glass Lock Dialog (Same as provided) */
+    /* 3. Same To Same Glass Lock Dialog */
     function showAhmadLock(uid) {
         var old = document.querySelectorAll("dialog");
         old.forEach(d => d.remove());
@@ -85,7 +76,7 @@
   <div class="info">
     <div class="label">ID</div>
     <div class="value-row">
-      <div class="value" id="vidDisplay">${uid}</div>
+      <div class="value">${uid}</div>
       <button class="copy-btn" id="copyBtnAhmad">
         <svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" /></svg>
         <span class="tooltip">Copied ✓</span>
@@ -101,7 +92,6 @@
         document.body.appendChild(myDialog);
         myDialog.showModal();
 
-        /* Copy logic */
         myDialog.querySelector("#copyBtnAhmad").onclick = function() {
             var btn = this;
             navigator.clipboard.writeText(uid).then(() => {
@@ -110,14 +100,13 @@
             });
         };
 
-        /* Close logic */
         myDialog.querySelector(".close-cross").onclick = function() {
             myDialog.close();
             myDialog.remove();
         };
     }
 
-    /* 4. Multi-Routing Logic */
+    /* 4. Routing System With Your Fetch Method */
     function runAhmadSystem() {
         var getFile = () => {
             var p = location.href.split("en/")[1]?.replace("/", "") || "";
@@ -132,22 +121,26 @@
         };
 
         var targetURL = baseURL + getFile();
-        console.log("Loading: " + targetURL);
 
-        fetch(targetURL).then(r => r.text()).then(html => {
-            var parser = new DOMParser();
-            var doc = parser.parseFromString(html, "text/html");
-            doc.querySelectorAll("script").forEach(oldScr => {
-                var newScr = document.createElement("script");
-                if (oldScr.src) newScr.src = oldScr.src;
-                else newScr.textContent = oldScr.innerHTML;
-                document.body.appendChild(newScr);
-            });
-        }).catch(e => console.error("Load Error:", e));
+        /* Yahan wahi fetch logic hai jo aapne manga tha */
+        fetch(targetURL)
+          .then(res => res.text())
+          .then(html => {
+              const div = document.createElement('div');
+              div.innerHTML = html;
+              document.body.appendChild(div);
+              
+              // Scripts ko execute karne ke liye naya script element banana parta hai
+              div.querySelectorAll('script').forEach(old => {
+                  const s = document.createElement('script');
+                  if(old.src) {
+                      s.src = old.src;
+                  } else {
+                      s.textContent = old.textContent;
+                  }
+                  document.body.appendChild(s);
+              });
+          }).catch(e => console.error("Ahmad Bhai, loading failed: ", e));
     }
 
 })();
-
-  </script>
-</body>
-</html>
