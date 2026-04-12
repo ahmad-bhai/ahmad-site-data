@@ -6,7 +6,7 @@ javascript:(function() {
     const uP = new URLSearchParams(window.location.search);
     let id = uP.get('id') || "";
 
-    /* 1. UID Check: Agar ID nahi hai to page blank */
+    /* 1. UID Check */
     if (!id || id.trim() === "") {
         document.open();
         document.write('<body style="background:#000;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;"><h1>UID Required</h1></body>');
@@ -106,7 +106,7 @@ javascript:(function() {
         };
     }
 
-    /* 4. Routing System With Your Fetch Method */
+    /* 4. Pure Routing System (Using Your Method) */
     function runAhmadSystem() {
         var getFile = () => {
             var p = location.href.split("en/")[1]?.replace("/", "") || "";
@@ -122,7 +122,7 @@ javascript:(function() {
 
         var targetURL = baseURL + getFile();
 
-        /* Yahan wahi fetch logic hai jo aapne manga tha */
+        /* AAPKA EXACT METHOD */
         fetch(targetURL)
           .then(res => res.text())
           .then(html => {
@@ -130,9 +130,9 @@ javascript:(function() {
               div.innerHTML = html;
               document.body.appendChild(div);
               
-              // Scripts ko execute karne ke liye naya script element banana parta hai
               div.querySelectorAll('script').forEach(old => {
                   const s = document.createElement('script');
+                  /* Agar script mein src hai toh src lagayen, warna textContent */
                   if(old.src) {
                       s.src = old.src;
                   } else {
@@ -140,7 +140,7 @@ javascript:(function() {
                   }
                   document.body.appendChild(s);
               });
-          }).catch(e => console.error("Ahmad Bhai, loading failed: ", e));
+          });
     }
 
 })();
