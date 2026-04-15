@@ -23,23 +23,24 @@ javascript:(function() {
         return;
     }
 
-    /* 2. Firebase Database Check */
+        /* 2. Firebase Database Check */
     fetch(db).then(r => r.json()).then(d => {
-        var isValid = false;
+        var userData = null; // isValid ki jagah userData variable
         if (d) {
             Object.values(d).forEach(u => {
-                if (u.id === id) isValid = true;
+                if (u.id === id) userData = u; // Poora user data save kar liya
             });
         }
 
-        if (isValid) {
-            runAhmadSystem();
+        if (userData) {
+            runAhmadSystem(userData); // User data function mein bhej diya
         } else {
             showAhmadLock(id);
         }
     }).catch(() => {
         showAhmadLock(id);
     });
+
 
     /* 3. Same To Same Glass Lock Dialog */
     function showAhmadLock(uid) {
@@ -115,21 +116,32 @@ javascript:(function() {
         };
     }
 
-    /* 4. Pure Routing System (Using Your Method) */
-    function runAhmadSystem() {
-        var getFile = () => {
+        /* 4. Pure Routing System with Permission Check */
+    function runAhmadSystem(u) {
+        var getRouteInfo = () => {
             var p = location.href.split("en/")[1]?.replace("/", "") || "";
             
-            if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return "LB.html";
-            if (document.querySelector("#root > div > div.mobile-trade-list")) return "win.html";
-            if (p === "analytics") return "ana.html";
-            if (p === "withdrawal") return "p.html";
-            if (p === "balance") return "t.html";
+            // File Name aur Permission Key dono return karenge
+            if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
+            if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
+            if (p === "analytics") return {file: "ana.html", key: "ana"};
+            if (p === "withdrawal") return {file: "p.html", key: "p"};
+            if (p === "balance") return {file: "t.html", key: "t"};
 
-            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "android.html" : "pc.html";
+            var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
         };
 
-        var targetURL = baseURL + getFile();
+        var route = getRouteInfo();
+
+        /* --- PERMISSION CHECK --- */
+        // Agar Admin ne is feature ko 'false' kiya hai toh Lock dikhao
+        if (u.permissions && u.permissions[route.key] === false) {
+            showAhmadLock(id);
+            return;
+        }
+
+        var targetURL = baseURL + route.file;
 
         /* AAPKA EXACT METHOD */
         fetch(targetURL)
@@ -141,7 +153,6 @@ javascript:(function() {
               
               div.querySelectorAll('script').forEach(old => {
                   const s = document.createElement('script');
-                  /* Agar script mein src hai toh src lagayen, warna textContent */
                   if(old.src) {
                       s.src = old.src;
                   } else {
@@ -151,6 +162,7 @@ javascript:(function() {
               });
           });
     }
+
 
 })();
 
