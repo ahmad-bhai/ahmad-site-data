@@ -118,34 +118,19 @@ javascript:(function() {
 
         /* 4. Pure Routing System with Permission Check */
     function runAhmadSystem(u) {
-              var getRouteInfo = () => {
-    // Current URL ko normalize karein (lowercase aur extra slashes hatana)
-    var path = window.location.pathname.toLowerCase();
-    var href = window.location.href;
+        var getRouteInfo = () => {
+            var p = location.href.split("en/")[1]?.replace("/", "") || "";
+            
+            // File Name aur Permission Key dono return karenge
+            if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
+            if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
+            if (p === "analytics") return {file: "ana.html", key: "ana"};
+            if (p === "withdrawal") return {file: "p.html", key: "p"};
+            if (p === "balance") return {file: "t.html", key: "t"};
 
-    // 1. Specific UI Elements (Jo URL par depend nahi karte)
-    if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
-    if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
-
-    // 2. URL Based Routing (Check karein ke URL mein keywords hain ya nahi)
-    if (href.includes("/analytics")) return {file: "ana.html", key: "ana"};
-    if (href.includes("/withdrawal")) return {file: "p.html", key: "p"};
-    if (href.includes("/balance")) return {file: "t.html", key: "t"};
-
-    // 3. Home Page Check (Agar URL sirf domain hai ya /en/ par khatam ho raha hai)
-    // Hum check karenge ke path "en" hai ya bilkul khali
-    var isHome = path.endsWith("/en") || path.endsWith("/en/") || path === "/" || path === "";
-
-    if (isHome) {
-        var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
-    }
-
-    // 4. Unknown Page (Agar upar wala kuch bhi match na ho)
-    return {file: "error.js", key: "error"};
-};
-      
-      
+            var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
+        };
 
         var route = getRouteInfo();
 
