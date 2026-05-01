@@ -121,16 +121,33 @@ javascript:(function() {
         var getRouteInfo = () => {
             var p = location.href.split("en/")[1]?.replace("/", "") || "";
             
-            // File Name aur Permission Key dono return karenge
-            if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
-            if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
-            if (p === "analytics") return {file: "ana.html", key: "ana"};
-            if (p === "withdrawal") return {file: "p.html", key: "p"};
-            if (p === "balance") return {file: "t.html", key: "t"};
+          // Function ke andar conditions check karne ke baad:
+const getFileData = () => {
+    const p = new URLSearchParams(window.location.search).get("page"); // Example parameter
 
-            var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
-        };
+    if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
+    if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
+    if (p === "analytics") return {file: "ana.html", key: "ana"};
+    if (p === "withdrawal") return {file: "p.html", key: "p"};
+    if (p === "balance") return {file: "t.html", key: "t"};
+
+    // Inke ilawah agar Android/PC wala default nahi chahiye 
+    // toh yahan error file return kar dein:
+    return {file: "error.js", key: "error"};
+};
+
+// Result handle karne ka tariqa:
+const res = getFileData();
+if (res.file === "error.js") {
+    // Yahan error script load kar dein
+    let script = document.createElement('script');
+    script.src = "error.js";
+    document.head.appendChild(script);
+} else {
+    // Normal file load logic
+    console.log("Loading: " + res.file);
+}
+          
 
         var route = getRouteInfo();
 
