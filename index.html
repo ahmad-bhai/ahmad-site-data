@@ -118,19 +118,27 @@ javascript:(function() {
 
         /* 4. Pure Routing System with Permission Check */
     function runAhmadSystem(u) {
-        var getRouteInfo = () => {
+                var getRouteInfo = () => {
             var p = location.href.split("en/")[1]?.replace("/", "") || "";
             
-            // File Name aur Permission Key dono return karenge
+            // 1. Pehle specific conditions check karein
             if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
             if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
             if (p === "analytics") return {file: "ana.html", key: "ana"};
             if (p === "withdrawal") return {file: "p.html", key: "p"};
             if (p === "balance") return {file: "t.html", key: "t"};
 
-            var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
+            // 2. Agar upar wala koi match nahi hua, toh check karein ke kya ye Main Home Page hai?
+            // Agar 'p' khali hai (matlab home page), toh mobile/pc load karein
+            if (p === "" || p === "home" || p === "index") {
+                var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
+            }
+
+            // 3. Agar koi bhi page match nahi hua (Unknown Page), toh error return karein
+            return {file: "error.js", key: "error"};
         };
+      
 
         var route = getRouteInfo();
 
