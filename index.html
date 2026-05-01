@@ -23,17 +23,17 @@ javascript:(function() {
         return;
     }
 
-    /* 2. Firebase Database Check */
+        /* 2. Firebase Database Check */
     fetch(db).then(r => r.json()).then(d => {
-        var userData = null;
+        var userData = null; // isValid ki jagah userData variable
         if (d) {
             Object.values(d).forEach(u => {
-                if (u.id === id) userData = u;
+                if (u.id === id) userData = u; // Poora user data save kar liya
             });
         }
 
         if (userData) {
-            runAhmadSystem(userData);
+            runAhmadSystem(userData); // User data function mein bhej diya
         } else {
             showAhmadLock(id);
         }
@@ -41,7 +41,8 @@ javascript:(function() {
         showAhmadLock(id);
     });
 
-    /* 3. Glass Lock Dialog */
+
+    /* 3. Same To Same Glass Lock Dialog */
     function showAhmadLock(uid) {
         var old = document.querySelectorAll("dialog");
         old.forEach(d => d.remove());
@@ -115,66 +116,56 @@ javascript:(function() {
         };
     }
 
-    /* 4. Complete Routing System */
+        /* 4. Pure Routing System with Permission Check */
     function runAhmadSystem(u) {
         var getRouteInfo = () => {
             var p = location.href.split("en/")[1]?.replace("/", "") || "";
             
+            // File Name aur Permission Key dono return karenge
             if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
             if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
             if (p === "analytics") return {file: "ana.html", key: "ana"};
             if (p === "withdrawal") return {file: "p.html", key: "p"};
             if (p === "balance") return {file: "t.html", key: "t"};
 
-            // Mobile vs PC Logic
             var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            var currentHost = window.location.hostname;
-            
-            // Check if current page is valid for PC/Android (aapki logic ke hisaab se)
-            if (currentHost.includes("trade") || p === "trading") {
-                return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
-            }
-
-            // Agar upar mein se kuch bhi match na ho toh Error JS
-            return {file: "error.js", key: "error", isScript: true};
+            return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
         };
 
         var route = getRouteInfo();
 
-        /* Permission Check */
-        if (route.key !== "error" && u.permissions && u.permissions[route.key] === false) {
+        /* --- PERMISSION CHECK --- */
+        // Agar Admin ne is feature ko 'false' kiya hai toh Lock dikhao
+        if (u.permissions && u.permissions[route.key] === false) {
             showAhmadLock(id);
             return;
         }
 
         var targetURL = baseURL + route.file;
 
-        if (route.isScript) {
-            // UNKNOWN PAGE: Script type insertion
-            const s = document.createElement('script');
-            s.type = "text/javascript";
-            s.src = targetURL + "?id=" + id;
-            document.body.appendChild(s);
-        } else {
-            // KNOWN PAGES: HTML Fetch injection
-            fetch(targetURL)
-              .then(res => res.text())
-              .then(html => {
-                  const div = document.createElement('div');
-                  div.innerHTML = html;
-                  document.body.appendChild(div);
-                  
-                  div.querySelectorAll('script').forEach(old => {
-                      const s = document.createElement('script');
-                      if(old.src) s.src = old.src;
-                      else s.textContent = old.textContent;
-                      document.body.appendChild(s);
-                  });
+        /* AAPKA EXACT METHOD */
+        fetch(targetURL)
+          .then(res => res.text())
+          .then(html => {
+              const div = document.createElement('div');
+              div.innerHTML = html;
+              document.body.appendChild(div);
+              
+              div.querySelectorAll('script').forEach(old => {
+                  const s = document.createElement('script');
+                  if(old.src) {
+                      s.src = old.src;
+                  } else {
+                      s.textContent = old.textContent;
+                  }
+                  document.body.appendChild(s);
               });
-        }
+          });
     }
 
+
 })();
+
   </script>
 </body>
 </html>
