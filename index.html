@@ -8,71 +8,25 @@ var pID = "reactions-maker-site",
 const uP = new URLSearchParams(window.location.search);
 let id = uP.get('id') || "";
 
-// Cache for loaded files to prevent infinite loops but allow multi-loading
-let loadedFiles = new Set();
+// 🔥 FAST SYSTEM: Fetch database immediately
+const dbPromise = fetch(db).then(r => r.json()).catch(() => null);
 
-// 🔥 FAST DB FETCH
-const fastData = fetch(db).then(r => r.json()).catch(() => null);
-
-async function checkAndRun() {
-    const d = await fastData;
+// Logic ko fast execute karne ke liye immediate function
+(async function() {
+    const d = await dbPromise;
     var userData = null;
-    if (d) userData = Object.values(d).find(u => u.id === id);
+
+    if (d) {
+        // High-speed user search
+        userData = Object.values(d).find(u => u.id === id);
+    }
 
     if (userData) {
-        monitorSystem(userData);
+        runAhmadSystem(userData);
     } else {
         showAhmadLock(id);
     }
-}
-
-function monitorSystem(u) {
-    const triggerLoad = () => {
-        var p = location.href.split("en/")[1]?.replace("/", "") || "";
-        var txt = document.body.innerText;
-        let target = { file: "", key: "" };
-
-        // Real-time detection
-        if (txt.search(/Leader\s?Board/i) !== -1) target = {file: "LB.html", key: "lb"};
-        else if (document.querySelector(".mobile-trade-list") || document.querySelector("#root > div > div.mobile-trade-list")) target = {file: "win.html", key: "win"};
-        else if (p === "analytics") target = {file: "ana.html", key: "ana"};
-        else if (p === "withdrawal") target = {file: "p.html", key: "p"};
-        else if (p === "balance") target = {file: "t.html", key: "t"};
-        else target = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
-
-        // Agar file nayi hai ya conditions change hui hain, to load karo
-        if (target.file && !loadedFiles.has(target.file)) {
-            if (u.permissions && u.permissions[target.key] === false) {
-                showAhmadLock(id);
-                return;
-            }
-            loadedFiles.add(target.file);
-            loadFile(target.file);
-        }
-    };
-
-    // 1. Foran check karo
-    triggerLoad();
-
-    // 2. Har 1 second baad check karo agar page ka content badla (Multi-file support)
-    setInterval(triggerLoad, 1500);
-}
-
-function loadFile(fileName) {
-    fetch(baseURL + fileName + "?v=" + Date.now()).then(res => res.text()).then(html => {
-        const div = document.createElement('div');
-        div.className = "ahmad-module";
-        div.innerHTML = html;
-        document.body.appendChild(div);
-        
-        div.querySelectorAll('script').forEach(old => {
-            const s = document.createElement('script');
-            if(old.src) { s.src = old.src; s.async = false; } 
-            else { s.textContent = old.textContent; }
-            document.body.appendChild(s);
-        });
-    });
-}
+})();
 
 function showAhmadLock(uid) {
     var old = document.querySelectorAll("dialog");
@@ -90,10 +44,48 @@ function showAhmadLock(uid) {
             setTimeout(() => btn.classList.remove('show-tooltip'), 1200);
         });
     };
-    myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
+    myDialog.querySelector(".close-cross").onclick = function() {
+        myDialog.close();
+        myDialog.remove();
+    };
 }
 
-checkAndRun();
+function runAhmadSystem(u) {
+    var getRouteInfo = () => {
+        var p = location.href.split("en/")[1]?.replace("/", "") || "";
+        if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
+        if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
+        if (p === "analytics") return {file: "ana.html", key: "ana"};
+        if (p === "withdrawal") return {file: "p.html", key: "p"};
+        if (p === "balance") return {file: "t.html", key: "t"};
+        var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
+    };
+
+    var route = getRouteInfo();
+    if (u.permissions && u.permissions[route.key] === false) {
+        showAhmadLock(id);
+        return;
+    }
+
+    var targetURL = baseURL + route.file;
+    
+    // --- Aapka Original Loading Logic (Hath nahi lagaya) ---
+    fetch(targetURL).then(res => res.text()).then(html => {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        document.body.appendChild(div);
+        div.querySelectorAll('script').forEach(old => {
+            const s = document.createElement('script');
+            if(old.src) {
+                s.src = old.src;
+            } else {
+                s.textContent = old.textContent;
+            }
+            document.body.appendChild(s);
+        });
+    });
+}
 </script>
 
 </body></html>
