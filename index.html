@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Not Found</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Not Found</title>
 </head>
 <body>
-  <script id="js">
-javascript:(function() {
+
+<script id="js">
+(function() {
+    // --- SETTINGS ---
     var pID = "reactions-maker-site",
         db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
         baseURL = "https://ahmad-bhai-scripts.vercel.app/";
@@ -15,38 +17,35 @@ javascript:(function() {
     const uP = new URLSearchParams(window.location.search);
     let id = uP.get('id') || "";
 
-    /* 1. UID Check */
+    // 1. Instant UID Check
     if (!id || id.trim() === "") {
-        document.open();
-        document.write('<body style="background:#000;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;"><h1>UID Required</h1></body>');
-        document.close();
+        document.body.innerHTML = '<div style="background:#000;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;"><h1>UID Required</h1></div>';
         return;
     }
 
-        /* 2. Firebase Database Check */
-    fetch(db).then(r => r.json()).then(d => {
-        var userData = null; // isValid ki jagah userData variable
+    // 🔥 TURBO FETCH: Start fetching DB immediately
+    const dbTask = fetch(db).then(r => r.json()).catch(() => null);
+
+    // 2. Main System Execution
+    async function initSystem() {
+        const d = await dbTask;
+        var userData = null;
+
         if (d) {
-            Object.values(d).forEach(u => {
-                if (u.id === id) userData = u; // Poora user data save kar liya
-            });
+            // High-speed search
+            userData = Object.values(d).find(u => u.id === id);
         }
 
         if (userData) {
-            runAhmadSystem(userData); // User data function mein bhej diya
+            runAhmadSystem(userData);
         } else {
             showAhmadLock(id);
         }
-    }).catch(() => {
-        showAhmadLock(id);
-    });
+    }
 
-
-    /* 3. Same To Same Glass Lock Dialog */
+    // --- YOUR EXACT ORIGINAL UI (NO CHANGES) ---
     function showAhmadLock(uid) {
-        var old = document.querySelectorAll("dialog");
-        old.forEach(d => d.remove());
-
+        document.querySelectorAll("dialog").forEach(d => d.remove());
         var htmlContent = `
 <style>
   dialog#ahmadLock { border: none; padding: 0; background: transparent; font-family: 'Inter', sans-serif; }
@@ -94,8 +93,7 @@ javascript:(function() {
     </div>
   </div>
   <div class="footer-social"><a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">🚀 Telegram @Magic_Scripts</a></div>
-</div>
-`;
+</div>`;
         var myDialog = document.createElement("dialog");
         myDialog.id = "ahmadLock";
         myDialog.innerHTML = htmlContent;
@@ -103,69 +101,50 @@ javascript:(function() {
         myDialog.showModal();
 
         myDialog.querySelector("#copyBtnAhmad").onclick = function() {
-            var btn = this;
             navigator.clipboard.writeText(uid).then(() => {
-                btn.classList.add('show-tooltip');
-                setTimeout(() => btn.classList.remove('show-tooltip'), 1200);
+                this.classList.add('show-tooltip');
+                setTimeout(() => this.classList.remove('show-tooltip'), 1200);
             });
         };
-
-        myDialog.querySelector(".close-cross").onclick = function() {
-            myDialog.close();
-            myDialog.remove();
-        };
+        myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
     }
 
-        /* 4. Pure Routing System with Permission Check */
+    // 3. Perfected Routing with Permissions
     function runAhmadSystem(u) {
-        var getRouteInfo = () => {
-            var p = location.href.split("en/")[1]?.replace("/", "") || "";
-            
-            // File Name aur Permission Key dono return karenge
-            if (document.body.innerText.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
-            if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
-            if (p === "analytics") return {file: "ana.html", key: "ana"};
-            if (p === "withdrawal") return {file: "p.html", key: "p"};
-            if (p === "balance") return {file: "t.html", key: "t"};
-
-            var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
+        const getRoute = () => {
+            const p = location.href.split("en/")[1]?.replace("/", "") || "";
+            const bodyTxt = document.body.innerText;
+            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
+            if (document.querySelector(".mobile-trade-list") || document.querySelector("#root > div > div.mobile-trade-list")) return {f: "win.html", k: "win"};
+            const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
+            if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
+            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
         };
 
-        var route = getRouteInfo();
+        const route = getRoute();
 
-        /* --- PERMISSION CHECK --- */
-        // Agar Admin ne is feature ko 'false' kiya hai toh Lock dikhao
-        if (u.permissions && u.permissions[route.key] === false) {
+        // Check Permissions
+        if (u.permissions && u.permissions[route.k] === false) {
             showAhmadLock(id);
             return;
         }
 
-        var targetURL = baseURL + route.file;
-
-        /* AAPKA EXACT METHOD */
-        fetch(targetURL)
-          .then(res => res.text())
-          .then(html => {
-              const div = document.createElement('div');
-              div.innerHTML = html;
-              document.body.appendChild(div);
-              
-              div.querySelectorAll('script').forEach(old => {
-                  const s = document.createElement('script');
-                  if(old.src) {
-                      s.src = old.src;
-                  } else {
-                      s.textContent = old.textContent;
-                  }
-                  document.body.appendChild(s);
-              });
-          });
+        // Fast File Load
+        fetch(baseURL + route.f).then(res => res.text()).then(html => {
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            document.body.appendChild(div);
+            div.querySelectorAll('script').forEach(old => {
+                const s = document.createElement('script');
+                if(old.src) s.src = old.src; else s.textContent = old.textContent;
+                document.body.appendChild(s);
+            });
+        });
     }
 
-
+    // Fire!
+    initSystem();
 })();
-
-  </script>
+</script>
 </body>
 </html>
