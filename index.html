@@ -1,112 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Not Found</title>
-</head>
-<body>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Not Found</title></head><body>
 
 <script id="js">
-    // --- CONFIGURATION ---
-    const pID = "reactions-maker-site";
-    const db = `https://${pID}-default-rtdb.firebaseio.com/users.json`;
-    const baseURL = "https://ahmad-bhai-scripts.vercel.app/";
+// --- CONFIGURATION ---
+var pID = "reactions-maker-site",
+    db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
+    baseURL = "https://ahmad-bhai-scripts.vercel.app/";
 
-    // 🔥 SPEED HACK: Start fetching database immediately (No waiting!)
-    const dbFetchPromise = fetch(db).then(r => r.json());
+// --- GLOBAL VARIABLES ---
+const uP = new URLSearchParams(window.location.search);
+let id = uP.get('id') || "";
 
-    async function initAhmadSystem() {
-        const uP = new URLSearchParams(window.location.search);
-        const id = uP.get('id') || "";
+// 🔥 SPEED UP: Start fetching database immediately!
+const fastDB = fetch(db).then(r => r.json()).catch(() => null);
 
-        try {
-            const data = await dbFetchPromise;
-            let userData = null;
-
-            // 🚀 ULTRA FAST: .find() stops immediately when ID is found
-            if (data) {
-                userData = Object.values(data).find(u => u.id === id);
-            }
-
-            if (userData) {
-                runAhmadSystem(userData, id);
-            } else {
-                showAhmadLock(id);
-            }
-        } catch (e) {
-            showAhmadLock(id);
-        }
+// Start logic
+(async function init() {
+    const d = await fastDB;
+    var userData = null;
+    
+    if (d) {
+        // Optimized: Finding user faster
+        userData = Object.values(d).find(u => u.id === id);
     }
 
-    function showAhmadLock(uid) {
-        // Cleaning old dialogs
-        document.querySelectorAll("dialog").forEach(d => d.remove());
+    if (userData) {
+        runAhmadSystem(userData);
+    } else {
+        showAhmadLock(id);
+    }
+})();
 
-        // YOUR ORIGINAL UI & CSS (100% UNTOUCHED)
-        var htmlContent = `<style>dialog#ahmadLock { border: none; padding: 0; background: transparent; font-family: 'Inter', sans-serif; }dialog#ahmadLock::backdrop { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }.glass { width: 420px; max-width: 92vw; padding: 28px 24px 26px; border-radius: 22px; background: linear-gradient(160deg, #1e1e1e, #2a2a2a); border: 1px solid rgba(255, 255, 255, 0.08); color: #f3f3f3; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55); position: relative; animation: popIn 0.35s ease-out; margin: auto; }@keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }.info { margin: 2rem 0; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 12px 14px; text-align: left; }.label { font-size: 0.7rem; letter-spacing: 1px; opacity: 0.6; margin-bottom: 4px; }.value-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }.value { font-size: 0.95rem; font-weight: 600; word-break: break-all; }.copy-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; opacity: 0.65; transition: opacity 0.2s ease; flex-shrink: 0; }.copy-btn:hover { opacity: 1; }.copy-btn svg { width: 18px; height: 18px; fill: #fff; }.copy-btn .tooltip { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; opacity: 0; pointer-events: none; transition: 0.3s ease; }.copy-btn.show-tooltip .tooltip { opacity: 1; transform: translateX(-50%) translateY(-4px); }.heart-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }.heart-bg::before, .heart-bg::after { content: '💜'; position: absolute; font-size: 28px; color: rgba(255, 111, 97, 0.25); animation: floatHearts 7s infinite linear; }.heart-bg::before { left: 20%; animation-delay: 0s; }.heart-bg::after { left: 75%; animation-delay: 3.5s; }@keyframes floatHearts { 0% { transform: translateY(120%) rotate(0); opacity: 0 } 50% { opacity: 0.7 } 100% { transform: translateY(-120%) rotate(360deg); opacity: 0 } }.lock-icon { display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }.lock-icon img { width: 90px; height: auto; margin-bottom: 1rem; }.logo-pulse { animation: pulseLogo 1.5s infinite ease-in-out; }@keyframes pulseLogo { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.12) } }.footer-social { display: flex; justify-content: center; margin-top: 3rem; margin-bottom: 1rem; }.telegram-btn { background: linear-gradient(135deg, #229ED9, #1d4ed8); color: #fff; padding: 10px 16px; border-radius: 999px; font-weight: 700; text-decoration: none; animation: pulse 1.8s infinite; }@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }.close-cross { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; font-weight: bold; color: #DC8DE6; cursor: pointer; transition: 0.3s; z-index: 10; }</style><div class="glass"><div class="heart-bg"></div><div class="close-cross">&times;</div><div class="lock-icon logo-pulse"><img src="https://i.ibb.co/xqXhx24Z/MS.png" alt="Logo" /></div><div style="font-size:2rem;font-weight:900;color:#fff; text-shadow:0 5px 25px rgba(0,0,0,0.35);letter-spacing:1px;margin-bottom:10px;margin-top: 1rem;">MAGIC SCRIPTS</div><div style="font-size:1rem;color:#DC8DE6; margin:1rem 0;letter-spacing:1px;">(🔒 LOCKED 🔒)</div><div class="info"><div class="label">ID</div><div class="value-row"><div class="value">${uid}</div><button class="copy-btn" id="copyBtnAhmad"><svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" /></svg><span class="tooltip">Copied ✓</span></button></div></div><div class="footer-social"><a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">🚀 Telegram @Magic_Scripts</a></div></div>`;
+function showAhmadLock(uid) {
+    var old = document.querySelectorAll("dialog");
+    old.forEach(d => d.remove());
+    
+    // Aapka Original UI Code
+    var htmlContent = `<style>dialog#ahmadLock { border: none; padding: 0; background: transparent; font-family: 'Inter', sans-serif; }dialog#ahmadLock::backdrop { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }.glass { width: 420px; max-width: 92vw; padding: 28px 24px 26px; border-radius: 22px; background: linear-gradient(160deg, #1e1e1e, #2a2a2a); border: 1px solid rgba(255, 255, 255, 0.08); color: #f3f3f3; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55); position: relative; animation: popIn 0.35s ease-out; margin: auto; }@keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }.info { margin: 2rem 0; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 12px 14px; text-align: left; }.label { font-size: 0.7rem; letter-spacing: 1px; opacity: 0.6; margin-bottom: 4px; }.value-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }.value { font-size: 0.95rem; font-weight: 600; word-break: break-all; }.copy-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; opacity: 0.65; transition: opacity 0.2s ease; flex-shrink: 0; }.copy-btn:hover { opacity: 1; }.copy-btn svg { width: 18px; height: 18px; fill: #fff; }.copy-btn .tooltip { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; opacity: 0; pointer-events: none; transition: 0.3s ease; }.copy-btn.show-tooltip .tooltip { opacity: 1; transform: translateX(-50%) translateY(-4px); }.heart-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }.heart-bg::before, .heart-bg::after { content: '💜'; position: absolute; font-size: 28px; color: rgba(255, 111, 97, 0.25); animation: floatHearts 7s infinite linear; }.heart-bg::before { left: 20%; animation-delay: 0s; }.heart-bg::after { left: 75%; animation-delay: 3.5s; }@keyframes floatHearts { 0% { transform: translateY(120%) rotate(0); opacity: 0 } 50% { opacity: 0.7 } 100% { transform: translateY(-120%) rotate(360deg); opacity: 0 } }.lock-icon { display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }.lock-icon img { width: 90px; height: auto; margin-bottom: 1rem; }.logo-pulse { animation: pulseLogo 1.5s infinite ease-in-out; }@keyframes pulseLogo { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.12) } }.footer-social { display: flex; justify-content: center; margin-top: 3rem; margin-bottom: 1rem; }.telegram-btn { background: linear-gradient(135deg, #229ED9, #1d4ed8); color: #fff; padding: 10px 16px; border-radius: 999px; font-weight: 700; text-decoration: none; animation: pulse 1.8s infinite; }@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }.close-cross { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; font-weight: bold; color: #DC8DE6; cursor: pointer; transition: 0.3s; z-index: 10; }</style><div class="glass"><div class="heart-bg"></div><div class="close-cross">&times;</div><div class="lock-icon logo-pulse"><img src="https://i.ibb.co/xqXhx24Z/MS.png" alt="Logo" /></div><div style="font-size:2rem;font-weight:900;color:#fff; text-shadow:0 5px 25px rgba(0,0,0,0.35);letter-spacing:1px;margin-bottom:10px;margin-top: 1rem;">MAGIC SCRIPTS</div><div style="font-size:1rem;color:#DC8DE6; margin:1rem 0;letter-spacing:1px;">(🔒 LOCKED 🔒)</div><div class="info"><div class="label">ID</div><div class="value-row"><div class="value">${uid}</div><button class="copy-btn" id="copyBtnAhmad"><svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" /></svg><span class="tooltip">Copied ✓</span></button></div></div><div class="footer-social"><a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">🚀 Telegram @Magic_Scripts</a></div></div>`;
+    var myDialog = document.createElement("dialog");
+    myDialog.id = "ahmadLock";
+    myDialog.innerHTML = htmlContent;
+    document.body.appendChild(myDialog);
+    myDialog.showModal();
+    myDialog.querySelector("#copyBtnAhmad").onclick = function() {
+        var btn = this;
+        navigator.clipboard.writeText(uid).then(() => {
+            btn.classList.add('show-tooltip');
+            setTimeout(() => btn.classList.remove('show-tooltip'), 1200);
+        });
+    };
+    myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
+}
 
-        var myDialog = document.createElement("dialog");
-        myDialog.id = "ahmadLock";
-        myDialog.innerHTML = htmlContent;
-        document.body.appendChild(myDialog);
-        myDialog.showModal();
+function runAhmadSystem(u) {
+    var getRouteInfo = () => {
+        var p = location.href.split("en/")[1]?.replace("/", "") || "";
+        var txt = document.body.innerText;
+        if (txt.search(/Leader\s?Board/i) !== -1) return {file: "LB.html", key: "lb"};
+        if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
+        const map = {"analytics": "ana.html", "withdrawal": "p.html", "balance": "t.html"};
+        if (map[p]) return {file: map[p], key: p === "analytics" ? "ana" : (p === "withdrawal" ? "p" : "t")};
+        var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
+    };
 
-        // Copy button logic
-        myDialog.querySelector("#copyBtnAhmad").onclick = function() {
-            var btn = this;
-            navigator.clipboard.writeText(uid).then(() => {
-                btn.classList.add('show-tooltip');
-                setTimeout(() => btn.classList.remove('show-tooltip'), 1200);
-            });
-        };
-
-        // Close button logic
-        myDialog.querySelector(".close-cross").onclick = function() {
-            myDialog.close();
-            myDialog.remove();
-        };
+    var route = getRouteInfo();
+    if (u.permissions && u.permissions[route.key] === false) {
+        showAhmadLock(id);
+        return;
     }
 
-    async function runAhmadSystem(u, uid) {
-        var getRouteInfo = () => {
-            var p = location.href.split("en/")[1]?.replace("/", "") || "";
-            var bodyText = document.body.innerText;
-            
-            if (/Leader\s?Board/i.test(bodyText)) return {file: "LB.html", key: "lb"};
-            if (document.querySelector("#root > div > div.mobile-trade-list")) return {file: "win.html", key: "win"};
-            
-            // Map object is faster than multiple IFs
-            const routes = { "analytics": "ana.html", "withdrawal": "p.html", "balance": "t.html" };
-            if (routes[p]) return { file: routes[p], key: p === "analytics" ? "ana" : (p === "withdrawal" ? "p" : "t") };
-
-            var isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            return isMob ? {file: "android.html", key: "android"} : {file: "pc.html", key: "pc"};
-        };
-
-        var route = getRouteInfo();
-
-        // Permission check
-        if (u.permissions && u.permissions[route.key] === false) {
-            showAhmadLock(uid);
-            return;
-        }
-
-        // ⚡ FAST INJECTION: No innerHTML lag
-        try {
-            const res = await fetch(baseURL + route.file);
-            const html = await res.text();
-            const range = document.createRange();
-            const frag = range.createContextualFragment(html);
-            document.body.appendChild(frag);
-        } catch (e) {
-            console.error("Failed to load script");
-        }
-    }
-
-    // Run everything
-    initAhmadSystem();
+    // ⚡ SUPER FAST LOADER (Injects and Executes)
+    fetch(baseURL + route.file).then(res => res.text()).then(html => {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        document.body.appendChild(div);
+        
+        // Execute scripts manually to ensure they RUN fast
+        div.querySelectorAll('script').forEach(old => {
+            const s = document.createElement('script');
+            if (old.src) { s.src = old.src; s.async = false; } 
+            else { s.textContent = old.textContent; }
+            document.body.appendChild(s);
+            old.remove();
+        });
+    }).catch(e => console.error("Load Fail", e));
+}
 </script>
 
-</body>
-</html>
+</body></html>
