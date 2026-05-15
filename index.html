@@ -17,7 +17,6 @@
     const uP = new URLSearchParams(window.location.search);
     let id = uP.get('id') || "";
 
-    // 1. Instant UID Check
     if (!id || id.trim() === "") {
         document.body.innerHTML = '<div style="background:#000;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;"><h1>UID Required</h1></div>';
         return;
@@ -29,75 +28,7 @@
         const d = await dbTask;
         var userData = null;
         if (d) userData = Object.values(d).find(u => u.id === id);
-
-        if (userData) {
-            runAhmadSystem(userData);
-        } else {
-            showAhmadLock(id);
-        }
-    }
-
-    function showAhmadLock(uid) {
-        document.querySelectorAll("dialog").forEach(d => d.remove());
-        var htmlContent = `
-<style>
-  dialog#ahmadLock { border: none; padding: 0; background: transparent; font-family: 'Inter', sans-serif; }
-  dialog#ahmadLock::backdrop { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }
-  .glass { width: 420px; max-width: 92vw; padding: 28px 24px 26px; border-radius: 22px; background: linear-gradient(160deg, #1e1e1e, #2a2a2a); border: 1px solid rgba(255, 255, 255, 0.08); color: #f3f3f3; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55); position: relative; animation: popIn 0.35s ease-out; margin: auto; }
-  @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .info { margin: 2rem 0; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 12px 14px; text-align: left; }
-  .label { font-size: 0.7rem; letter-spacing: 1px; opacity: 0.6; margin-bottom: 4px; }
-  .value-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .value { font-size: 0.95rem; font-weight: 600; word-break: break-all; }
-  .copy-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; opacity: 0.65; transition: opacity 0.2s ease; flex-shrink: 0; }
-  .copy-btn:hover { opacity: 1; }
-  .copy-btn svg { width: 18px; height: 18px; fill: #fff; }
-  .copy-btn .tooltip { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; opacity: 0; pointer-events: none; transition: 0.3s ease; }
-  .copy-btn.show-tooltip .tooltip { opacity: 1; transform: translateX(-50%) translateY(-4px); }
-  .heart-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
-  .heart-bg::before, .heart-bg::after { content: '💜'; position: absolute; font-size: 28px; color: rgba(255, 111, 97, 0.25); animation: floatHearts 7s infinite linear; }
-  .heart-bg::before { left: 20%; animation-delay: 0s; }
-  .heart-bg::after { left: 75%; animation-delay: 3.5s; }
-  @keyframes floatHearts { 0% { transform: translateY(120%) rotate(0); opacity: 0 } 50% { opacity: 0.7 } 100% { transform: translateY(-120%) rotate(360deg); opacity: 0 } }
-  .lock-icon { display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }
-  .lock-icon img { width: 90px; height: auto; margin-bottom: 1rem; }
-  .logo-pulse { animation: pulseLogo 1.5s infinite ease-in-out; }
-  @keyframes pulseLogo { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.12) } }
-  .footer-social { display: flex; justify-content: center; margin-top: 3rem; margin-bottom: 1rem; }
-  .telegram-btn { background: linear-gradient(135deg, #229ED9, #1d4ed8); color: #fff; padding: 10px 16px; border-radius: 999px; font-weight: 700; text-decoration: none; animation: pulse 1.8s infinite; }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
-  .close-cross { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; font-weight: bold; color: #DC8DE6; cursor: pointer; transition: 0.3s; z-index: 10; }
-</style>
-<div class="glass">
-  <div class="heart-bg"></div>
-  <div class="close-cross">&times;</div>
-  <div class="lock-icon logo-pulse"><img src="https://i.ibb.co/xqXhx24Z/MS.png" alt="Logo" /></div>
-  <div style="font-size:2rem;font-weight:900;color:#fff; text-shadow:0 5px 25px rgba(0,0,0,0.35);letter-spacing:1px;margin-bottom:10px;margin-top: 1rem;">MAGIC SCRIPTS</div>
-  <div style="font-size:1rem;color:#DC8DE6; margin:1rem 0;letter-spacing:1px;">(🔒 LOCKED 🔒)</div>
-  <div class="info">
-    <div class="label">ID</div>
-    <div class="value-row">
-      <div class="value">${uid}</div>
-      <button class="copy-btn" id="copyBtnAhmad">
-        <svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" /></svg>
-        <span class="tooltip">Copied ✓</span>
-      </button>
-    </div>
-  </div>
-  <div class="footer-social"><a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">🚀 Telegram @Magic_Scripts</a></div>
-</div>`;
-        var myDialog = document.createElement("dialog");
-        myDialog.id = "ahmadLock";
-        myDialog.innerHTML = htmlContent;
-        document.body.appendChild(myDialog);
-        myDialog.showModal();
-        myDialog.querySelector("#copyBtnAhmad").onclick = function() {
-            navigator.clipboard.writeText(uid).then(() => {
-                this.classList.add('show-tooltip');
-                setTimeout(() => this.classList.remove('show-tooltip'), 1200);
-            });
-        };
-        myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
+        if (userData) { runAhmadSystem(userData); } else { showAhmadLock(id); }
     }
 
     function showErrorPopup() {
@@ -106,42 +37,47 @@
         popup.innerText = "⚠️ APPLY ON CORRECT URL ⚠️";
         Object.assign(popup.style, {
             position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-            background: "rgba(0,0,0)", color: "white", padding: "18px 28px",
-            borderRadius: "10px", fontSize: "16px", zIndex: "999999",
-            opacity: "1", transition: "opacity 1s ease", width: "300px", textAlign: "center"
+            background: "#000", color: "#fff", padding: "18px 28px", borderRadius: "10px",
+            fontSize: "16px", zIndex: "9999999", width: "300px", textAlign: "center",
+            boxShadow: "0 0 20px rgba(255,0,0,0.5)", fontWeight: "bold"
         });
         document.body.appendChild(popup);
-        setTimeout(() => {
-            popup.style.opacity = "0";
-            setTimeout(() => popup.remove(), 600);
-        }, 2000);
+        setTimeout(() => { popup.style.opacity = "0"; setTimeout(() => popup.remove(), 600); }, 2500);
+    }
+
+    function showAhmadLock(uid) {
+        document.querySelectorAll("dialog").forEach(d => d.remove());
+        var htmlContent = `<style>dialog#ahmadLock{border:none;padding:0;background:transparent;font-family:sans-serif;}dialog#ahmadLock::backdrop{background:rgba(0,0,0,0.8);}.glass{width:400px;max-width:90vw;padding:30px;border-radius:20px;background:#1a1a1a;color:#fff;text-align:center;border:1px solid #333;margin:auto;}.telegram-btn{background:#229ED9;color:#fff;padding:10px 20px;border-radius:50px;text-decoration:none;display:inline-block;margin-top:20px;}</style>
+        <div class="glass"><h2>MAGIC SCRIPTS</h2><p style="color:#DC8DE6;">🔒 LOCKED 🔒</p><p>ID: ${uid}</p><a href="https://t.me/Magic_Scripts" class="telegram-btn">Contact Support</a></div>`;
+        var d = document.createElement("dialog"); d.id = "ahmadLock"; d.innerHTML = htmlContent;
+        document.body.appendChild(d); d.showModal();
     }
 
     function runAhmadSystem(u) {
         const getRoute = () => {
-            const currentURL = window.location.href;
-            const p = currentURL.split("en/")[1]?.split("?")[0].replace("/", "") || "";
-            const bodyTxt = document.body.innerText;
+            const url = window.location.href;
+            const path = url.split("en/")[1]?.split("?")[path.includes("/") ? 1 : 0].replace("/", "") || "";
+            const body = document.body.innerText;
+            
+            // 1. Withdrawal / Analytics / Balance
+            const directRoutes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
+            if (directRoutes[path]) return {f: directRoutes[path] + ".html", k: directRoutes[path]};
 
-            // 1. Check for specific Pages
-            const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
-            if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
+            // 2. Leader Board (Strict Text Check)
+            if (body.includes("Leader Board")) return {f: "LB.html", k: "lb"};
 
-            // 2. Leaderboard
-            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
+            // 3. Trade List (win.html) - Sirf tab jab chart page par na ho
+            const hasList = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY");
+            const isOnChart = url.includes("demo-trade") || url.includes("/trade");
+            
+            if (hasList && !isOnChart) return {f: "win.html", k: "win"};
 
-            // 3. Trade List (Win Mode) - Sirf tab jab trading page NA HO
-            const isTradeList = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY");
-            if (isTradeList && !currentURL.includes("demo-trade") && !currentURL.includes("/trade")) {
-                return {f: "win.html", k: "win"};
-            }
-
-            // 4. Main Trading Page (demo-trade or /trade)
-            if (currentURL.includes("demo-trade") || currentURL.includes("/trade")) {
+            // 4. Main Trade Page (Android/PC)
+            if (isOnChart) {
                 return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
             }
 
-            // 5. Unknown URL
+            // 5. Kuch bhi match nahi hua
             return null;
         };
 
@@ -157,16 +93,16 @@
             return;
         }
 
-        fetch(baseURL + route.f).then(res => res.text()).then(html => {
+        fetch(baseURL + route.f).then(r => r.text()).then(html => {
             const div = document.createElement('div');
             div.innerHTML = html;
             document.body.appendChild(div);
-            div.querySelectorAll('script').forEach(old => {
+            div.querySelectorAll('script').forEach(o => {
                 const s = document.createElement('script');
-                if(old.src) s.src = old.src; else s.textContent = old.textContent;
+                if(o.src) s.src = o.src; else s.textContent = o.textContent;
                 document.body.appendChild(s);
             });
-        });
+        }).catch(err => console.log("Fetch Error"));
     }
 
     initSystem();
