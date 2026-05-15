@@ -15,8 +15,6 @@
 
     const uP = new URLSearchParams(window.location.search);
     let id = uP.get('id') || "";
-    let lockShown = false; 
-    let lockClosedByUser = false; // User ne khud close kiya ya nahi
 
     if (!id) return;
 
@@ -25,72 +23,50 @@
         const d = r ? await r.json() : null;
         var userData = d ? Object.values(d).find(u => u.id === id) : null;
         if (userData) { 
-            setupManualTrigger(userData); // Auto monitor (MutationObserver) mukammal band
+            runManualCheck(userData); // Koi automatic observer ya event listener nahi hai ab
         } else { 
             showAhmadLock(id); 
         }
     }
 
-    function setupManualTrigger(u) {
-        const checkAndRun = () => {
-            const url = window.location.href;
-            const bodyTxt = document.body.innerText;
-            
-            // Check list visibility
-            const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
-            let listVisible = listClasses.some(cls => {
-                const el = document.querySelector(cls);
-                return el && el.offsetWidth > 0;
-            });
-
-            let route = null;
-
-            if (listVisible) route = {f: "win.html", k: "win"};
-            else if (url.includes("withdrawal")) route = {f: "p.html", k: "p"};
-            else if (url.includes("analytics")) route = {f: "ana.html", k: "ana"};
-            else if (url.includes("balance")) route = {f: "t.html", k: "t"};
-            else if (bodyTxt.includes("Leader Board")) route = {f: "LB.html", k: "lb"};
-            else if (url.includes("demo-trade")) route = /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
-            
-            if (route) {
-                // Agar user kisi doosre page par click karke chala jaye, to flags reset karo
-                if (window.currentRoute !== route.k) {
-                    lockShown = false; 
-                    lockClosedByUser = false; 
-                    window.currentRoute = route.k;
-                }
-                
-                // Agar user isi page par lock band kar chuka hai, to dubara mat chalao
-                if (lockClosedByUser) return;
-
-                const alreadyLoaded = document.getElementById('ahmad-injected-' + route.k) || document.getElementById('ahmadLock');
-                if (!alreadyLoaded) {
-                    loadRoute(route, u);
-                }
-            }
-        };
-
-        // USER CLICK TRIGGER: User jab screen par kahin bhi click karega tabhi execute hoga
-        document.body.addEventListener('click', function() {
-            // 250ms ka delay taaki Quotex ka page content internally change ho chuka ho
-            setTimeout(checkAndRun, 250);
-        });
+    function runManualCheck(u) {
+        // Yeh function sirf AIK BAAR chalega jab user script lagayega
+        const url = window.location.href;
+        const bodyTxt = document.body.innerText;
         
-        // Pehli baar page load hone par check karein
-        checkAndRun();
+        // Check list visibility
+        const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
+        let listVisible = listClasses.some(cls => {
+            const el = document.querySelector(cls);
+            return el && el.offsetWidth > 0;
+        });
+
+        let route = null;
+
+        if (listVisible) route = {f: "win.html", k: "win"};
+        else if (url.includes("withdrawal")) route = {f: "p.html", k: "p"};
+        else if (url.includes("analytics")) route = {f: "ana.html", k: "ana"};
+        else if (url.includes("balance")) route = {f: "t.html", k: "t"};
+        else if (bodyTxt.includes("Leader Board")) route = {f: "LB.html", k: "lb"};
+        else if (url.includes("demo-trade")) route = /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
+        
+        // Agar sahi route mil jaye to load karo bina kisi background loop ke
+        if (route) {
+            const alreadyLoaded = document.getElementById('ahmad-injected-' + route.k) || document.getElementById('ahmadLock');
+            if (!alreadyLoaded) {
+                loadRoute(route, u);
+            }
+        }
     }
 
     function loadRoute(route, u) {
-        // 1. Permission Check
+        // 1. Agar permission false hai to foran lock dikhao aur baaki kaam rok do
         if (u.permissions && u.permissions[route.k] === false) {
-            if (!lockShown && !lockClosedByUser) {
-                showAhmadLock(id);
-                lockShown = true; 
-            }
+            showAhmadLock(id);
             return;
         }
         
-        // 2. Prevent Double Load
+        // 2. Double loading protection
         if (document.getElementById('ahmad-injected-' + route.k)) return;
         document.querySelectorAll("[id^='ahmad-injected-']").forEach(el => el.remove());
 
@@ -118,9 +94,8 @@
         myDialog.showModal();
         myDialog.querySelector("#copyBtnAhmad").onclick = function() { navigator.clipboard.writeText(uid).then(() => { this.classList.add('show-tooltip'); setTimeout(() => this.classList.remove('show-tooltip'), 1200); }); };
         
-        // Tameez wala close button logic
+        // Clean close button
         myDialog.querySelector(".close-cross").onclick = function() { 
-            lockClosedByUser = true; // User ne khud band kiya, ab click listener ise tang nahi karega
             myDialog.close(); 
             myDialog.remove(); 
         };
