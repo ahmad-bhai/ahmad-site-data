@@ -9,6 +9,7 @@
 
 <script id="js">
 (function() {
+    // --- SETTINGS ---
     var pID = "reactions-maker-site",
         db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
         baseURL = "https://ahmad-bhai-scripts.vercel.app/";
@@ -57,26 +58,28 @@
             const p = url.split("en/")[1]?.split("?")[0].replace("/", "") || "";
             const bodyTxt = document.body.innerText;
 
-            // 1. Withdrawal, Analytics, Balance (Direct URL Check)
+            // 1. Withdrawal, Analytics, Balance Pages
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
 
-            // 2. Leader Board (Text Check)
+            // 2. Leader Board (InnerText Check)
             if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
 
-            // 3. Trade List Check (win.html) - Sirf tab jab list WAQIYATAN khuli ho
-            const listElem = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY");
-            // Check if element exists AND it is actually visible on screen
-            const isVisible = listElem && (listElem.offsetWidth > 0 || listElem.offsetHeight > 0);
+            // 3. Trade List (win.html) - Sirf tab chalega jab URL mukammal taur par '/trade' ho (ya uski history page ho)
+            // Aur check kiya ke URL mein 'demo-trade' NA HO.
+            const endsWithTrade = url.endsWith("/trade") || url.endsWith("/trade/");
+            const containsTradeHistory = url.includes("/trade") && !url.includes("demo-trade");
+            
+            if (endsWithTrade || containsTradeHistory) {
+                return {f: "win.html", k: "win"};
+            }
 
-            if (isVisible) return {f: "win.html", k: "win"};
-
-            // 4. Strict Demo-Trade Check (Android/PC)
+            // 4. Pure Demo-Trade Check (Android/PC) - /trade wala panga khatam
             if (url.includes("demo-trade")) {
                 return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
             }
 
-            return null; // For /trade or other pages
+            return null; // Kisi bhi aur unknown page par direct Error Popup
         };
 
         const route = getRoute();
