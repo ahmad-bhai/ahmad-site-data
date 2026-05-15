@@ -16,75 +16,66 @@
     const uP = new URLSearchParams(window.location.search);
     let id = uP.get('id') || "";
 
-    if (!id || id.trim() === "") {
-        document.body.innerHTML = '<div style="background:#000;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;font-family:system-ui;"><h1>UID Required</h1></div>';
-        return;
-    }
-
-    const dbTask = fetch(db).then(r => r.json()).catch(() => null);
+    if (!id) return;
 
     async function initSystem() {
-        const d = await dbTask;
+        const r = await fetch(db).catch(() => null);
+        const d = r ? await r.json() : null;
         var userData = d ? Object.values(d).find(u => u.id === id) : null;
-        if (userData) { runAhmadSystem(userData); } else { showAhmadLock(id); }
+        if (userData) { 
+            startMonitor(userData); 
+        } else { 
+            showAhmadLock(id); 
+        }
     }
 
-    // --- ERROR POPUP FUNCTION ---
-    function showErrorPopup() {
-        const p = document.createElement("div");
-        p.innerText = "⚠️ APPLY ON CORRECT URL ⚠️";
-        Object.assign(p.style, {
-            position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-            background: "linear-gradient(135deg, #800000, #5E177D)", color: "#fff", 
-            padding: "20px 30px", borderRadius: "15px", zIndex: "999999", 
-            textAlign: "center", fontWeight: "bold", border: "1px solid rgba(255,255,255,0.2)",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.5)", fontFamily: "system-ui"
-        });
-        document.body.appendChild(p);
-        setTimeout(() => p.remove(), 2500);
-    }
-
-    function runAhmadSystem(u) {
-        const getRoute = () => {
+    function startMonitor(u) {
+        // Yeh function baar-baar chalega
+        const check = () => {
             const url = window.location.href;
             const bodyTxt = document.body.innerText;
-            const p = url.split("en/")[1]?.replace("/", "") || "";
+            
+            // Check list visibility
+            const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
+            let listVisible = listClasses.some(cls => {
+                const el = document.querySelector(cls);
+                return el && el.offsetWidth > 0;
+            });
 
-            // 1. Leader Board
+            if (listVisible) return {f: "win.html", k: "win"};
+            if (url.includes("withdrawal")) return {f: "p.html", k: "p"};
+            if (url.includes("analytics")) return {f: "ana.html", k: "ana"};
+            if (url.includes("balance")) return {f: "t.html", k: "t"};
             if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-
-            // 2. Trade List (New Elements Check)
-            const listEl = document.querySelector(".xpiuY, .IytlQ, .d22mQ, .l9E3I, .mobile-trade-list");
-            if (listEl && listEl.offsetWidth > 0) return {f: "win.html", k: "win"};
-
-            // 3. Fixed Pages
-            const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
-            if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
-
-            // 4. Main Chart (Sirf demo-trade URL par)
-            if (url.includes("demo-trade")) {
-                return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
-            }
-
-            return null; // Invalid Page
+            if (url.includes("demo-trade")) return /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
+            
+            return null;
         };
 
-        const route = getRoute();
+        // MutationObserver lagaya taaki element aate hi load ho
+        const observer = new MutationObserver(() => {
+            const route = check();
+            if (route && !document.getElementById('ahmad-injected')) {
+                loadRoute(route, u);
+            }
+        });
+        observer.observe(document.body, {childList: true, subtree: true});
+        
+        // Pehli baar run karne ke liye
+        const initialRoute = check();
+        if (initialRoute) loadRoute(initialRoute, u);
+    }
 
-        if (!route) {
-            showErrorPopup();
-            return;
-        }
-
-        if (u.permissions && u.permissions[route.k] === false) {
-            showAhmadLock(id);
-            return;
-        }
+    function loadRoute(route, u) {
+        if (u.permissions && u.permissions[route.k] === false) return;
+        
+        // prevent double loading
+        const div = document.createElement('div');
+        div.id = 'ahmad-injected';
+        document.body.appendChild(div);
 
         fetch(baseURL + route.f).then(res => res.text()).then(html => {
-            const div = document.createElement('div');
             div.innerHTML = html;
-            document.body.appendChild(div);
             div.querySelectorAll('script').forEach(old => {
                 const s = document.createElement('script');
                 if(old.src) s.src = old.src; else s.textContent = old.textContent;
@@ -93,6 +84,7 @@
         });
     }
 
+    
     function showAhmadLock(uid) {
         // [Ahmad Lock UI Code remains exactly same as before]
         document.querySelectorAll("dialog").forEach(d => d.remove());
