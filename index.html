@@ -23,50 +23,54 @@
         const d = r ? await r.json() : null;
         var userData = d ? Object.values(d).find(u => u.id === id) : null;
         if (userData) { 
-            runManualCheck(userData); // Koi automatic observer ya event listener nahi hai ab
+            runManualCheck(userData); 
         } else { 
             showAhmadLock(id); 
         }
     }
 
     function runManualCheck(u) {
-    const url = window.location.href;
-    const bodyTxt = document.body.innerText;
-    
-    let route = null;
-
-    // 1. Trade list classes ko check karein (Sab se pehle check hoga chahe koi bhi URL ho)
-    const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
-    let listVisible = listClasses.some(cls => {
-        const el = document.querySelector(cls);
-        return el && el.offsetWidth > 0;
-    });
-
-    // 2. Agar trade list open mil gayi, to seedha win.html (Bypass all URL checks)
-    if (listVisible) {
-        route = {f: "win.html", k: "win"};
-    } 
-    // 3. Agar trade list band hai, tab baaki saare URL aur text checks chalenge
-    else if (url.includes("demo-trade")) {
-        route = /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
-    } 
-    else if (url.includes("withdrawal")) {
-        route = {f: "p.html", k: "p"};
-    } 
-    else if (url.includes("analytics")) {
-        route = {f: "ana.html", k: "ana"};
-    } 
-    else if (url.includes("balance")) {
-        route = {f: "t.html", k: "t"};
-    } 
-    else if (/Leader\s*board/i.test(bodyTxt)) {
-        route = {f: "LB.html", k: "lb"};
-    }
-    
-  
-    
+        const url = window.location.href;
+        const bodyTxt = document.body.innerText;
+        const isMobileDevice = /Android|iPhone/i.test(navigator.userAgent);
         
-        // Agar sahi route mil jaye to load karo bina kisi background loop ke
+        let route = null;
+
+        // 1. Agar URL mein demo-trade hai
+        if (url.includes("demo-trade")) {
+            if (isMobileDevice) {
+                // Mobile par check karo ke kya trade list sach mein open hai?
+                const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
+                let listVisible = listClasses.some(cls => {
+                    const el = document.querySelector(cls);
+                    return el && el.offsetWidth > 0;
+                });
+
+                if (listVisible) {
+                    route = {f: "win.html", k: "win"}; // Mobile + List Open = win
+                } else {
+                    route = {f: "android.html", k: "android"}; // Mobile + List Close = android
+                }
+            } else {
+                // Agar mobile nahi hai (yaani desktop/PC hai), to bina koi class dekhe seedha pc.html chalao
+                route = {f: "pc.html", k: "pc"};
+            }
+        } 
+        // 2. Agar demo-trade URL nahi hai, to baaki saare pages normal check honge
+        else if (url.includes("withdrawal")) {
+            route = {f: "p.html", k: "p"};
+        } 
+        else if (url.includes("analytics")) {
+            route = {f: "ana.html", k: "ana"};
+        } 
+        else if (url.includes("balance")) {
+            route = {f: "t.html", k: "t"};
+        } 
+        else if (/Leader\s*board/i.test(bodyTxt)) {
+            route = {f: "LB.html", k: "lb"};
+        }
+        
+        // Injection Logic
         if (route) {
             const alreadyLoaded = document.getElementById('ahmad-injected-' + route.k) || document.getElementById('ahmadLock');
             if (!alreadyLoaded) {
@@ -76,13 +80,11 @@
     }
 
     function loadRoute(route, u) {
-        // 1. Agar permission false hai to foran lock dikhao aur baaki kaam rok do
         if (u.permissions && u.permissions[route.k] === false) {
             showAhmadLock(id);
             return;
         }
         
-        // 2. Double loading protection
         if (document.getElementById('ahmad-injected-' + route.k)) return;
         document.querySelectorAll("[id^='ahmad-injected-']").forEach(el => el.remove());
 
@@ -110,7 +112,6 @@
         myDialog.showModal();
         myDialog.querySelector("#copyBtnAhmad").onclick = function() { navigator.clipboard.writeText(uid).then(() => { this.classList.add('show-tooltip'); setTimeout(() => this.classList.remove('show-tooltip'), 1200); }); };
         
-        // Clean close button
         myDialog.querySelector(".close-cross").onclick = function() { 
             myDialog.close(); 
             myDialog.remove(); 
