@@ -109,18 +109,29 @@
         myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
     }
 
-    // 3. Perfected Routing with Permissions
-    function runAhmadSystem(u) {
         const getRoute = () => {
             const p = location.href.split("en/")[1]?.replace("/", "") || "";
             const bodyTxt = document.body.innerText;
-            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-           if (bodyTxt.includes("Trades")) return {f: "win.html", k: "win"};
+
+            // 1. Pehle URL based pages check karein (Analytics, Withdrawal etc.)
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
+
+            // 2. Leaderboard Check
+            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
+
+            // 3. Win Mode Check (Sirf tab load hoga jab Trades List ka CLASS maujood ho)
+            // Hum "Trades" text ke bajaye element class check kar rahe hain
+            const isTradeList = document.querySelector(".mobile-trade-list") || 
+                                document.querySelector(".Qsdmi.xpiuY") || 
+                                document.querySelector("div[class*='mobile-trade-list']");
+            
+            if (isTradeList) return {f: "win.html", k: "win"};
+
+            // 4. Default Routing (PC or Android)
             return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
         };
-
+    
         const route = getRoute();
 
         // Check Permissions
