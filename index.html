@@ -35,21 +35,10 @@
         const popup = document.createElement("div");
         popup.innerText = "⚠️ APPLY ON CORRECT URL ⚠️";
         Object.assign(popup.style, {
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            background: "rgba(0,0,0)",
-            color: "white",
-            padding: "18px 28px",
-            borderRadius: "10px",
-            fontSize: "16px",
-            zIndex: "999999",
-            opacity: "1",
-            transition: "opacity 1s ease",
-            width: "300px",
-            textAlign: "center"
-            
+            position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+            background: "#000", color: "#fff", padding: "18px 28px", borderRadius: "10px",
+            fontSize: "16px", zIndex: "9999999", width: "300px", textAlign: "center",
+            boxShadow: "0 0 25px rgba(255,0,0,0.4)", fontWeight: "bold", border: "1px solid #444"
         });
         document.body.appendChild(popup);
         setTimeout(() => { popup.style.opacity = "0"; setTimeout(() => popup.remove(), 600); }, 2500);
@@ -124,27 +113,26 @@
             const p = url.split("en/")[1]?.split("?")[0].replace("/", "") || "";
             const bodyTxt = document.body.innerText;
 
-            // 1. Pages like withdrawal, analytics, balance
-            const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
-            if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
-
-            // 2. InnerText Leader Board
-            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-
-            // 3. Trade List Element (win.html)
+            // 🔥 FIX 1: Trade List Element (win.html) ko TOP priority di hai
             const isTradeList = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY") || document.querySelector(".scroll-view.mobile-trade-list");
-            const isChartPage = url.includes("demo-trade") || url.includes("/demo-trade/");
-
-            if (isTradeList && !isChartPage) {
+            if (isTradeList) {
                 return {f: "win.html", k: "win"};
             }
 
-            // 4. demo-trade (Device specific)
-            if (isChartPage) {
+            // 2. Withdrawal, analytics, balance pages
+            const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
+            if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
+
+            // 3. InnerText Leader Board Check
+            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
+
+            // 🔥 FIX 2: Strict check - android/pc sirf "demo-trade" ya "/demo-trade/" par hi chalenge, "/trade" par nahi!
+            const isStrictDemoTrade = url.includes("demo-trade");
+            if (isStrictDemoTrade) {
                 return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
             }
 
-            return null; // No valid page found
+            return null; // Kisi aur page par Error dikhane ke liye
         };
 
         const route = getRoute();
