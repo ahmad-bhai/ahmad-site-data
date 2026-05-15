@@ -9,7 +9,6 @@
 
 <script id="js">
 (function() {
-    // --- SETTINGS ---
     var pID = "reactions-maker-site",
         db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
         baseURL = "https://ahmad-bhai-scripts.vercel.app/";
@@ -36,8 +35,9 @@
         popup.innerText = "⚠️ APPLY ON CORRECT URL ⚠️";
         Object.assign(popup.style, {
             position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-            background: "black", color: "white", padding: "18px 28px", borderRadius: "10px",
-            fontSize: "16px", zIndex: "999999", width: "300px", textAlign: "center", border: "1px solid #444"
+            background: "#000", color: "#fff", padding: "18px 28px", borderRadius: "10px",
+            fontSize: "16px", zIndex: "9999999", width: "300px", textAlign: "center",
+            boxShadow: "0 0 25px rgba(255,0,0,0.4)", fontWeight: "bold"
         });
         document.body.appendChild(popup);
         setTimeout(() => { popup.style.opacity = "0"; setTimeout(() => popup.remove(), 600); }, 2500);
@@ -57,29 +57,26 @@
             const p = url.split("en/")[1]?.split("?")[0].replace("/", "") || "";
             const bodyTxt = document.body.innerText;
 
-            // 1. Strict Chart Check (Sirf demo-trade par chale)
-            const isStrictDemo = url.includes("demo-trade");
-            
-            // 2. Trade List Elements
-            const isTradeListVisible = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY") || document.querySelector(".scroll-view.mobile-trade-list");
-
-            // Priority Logic
-            // A. Agar Trade List khuli hai to win.html (Chart page par ho ya na ho)
-            if (isTradeListVisible) return {f: "win.html", k: "win"};
-
-            // B. Agar Demo Trade page hai to Android/PC
-            if (isStrictDemo) {
-                return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
-            }
-
-            // C. Leader Board Check
-            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-
-            // D. Specific Pages
+            // 1. Withdrawal, Analytics, Balance (Direct URL Check)
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
 
-            return null; // Baaki sab (like /trade) par Error aayega
+            // 2. Leader Board (Text Check)
+            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
+
+            // 3. Trade List Check (win.html) - Sirf tab jab list WAQIYATAN khuli ho
+            const listElem = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY");
+            // Check if element exists AND it is actually visible on screen
+            const isVisible = listElem && (listElem.offsetWidth > 0 || listElem.offsetHeight > 0);
+
+            if (isVisible) return {f: "win.html", k: "win"};
+
+            // 4. Strict Demo-Trade Check (Android/PC)
+            if (url.includes("demo-trade")) {
+                return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
+            }
+
+            return null; // For /trade or other pages
         };
 
         const route = getRoute();
