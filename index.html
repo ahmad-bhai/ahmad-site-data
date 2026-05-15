@@ -58,28 +58,30 @@
             const p = url.split("en/")[1]?.split("?")[0].replace("/", "") || "";
             const bodyTxt = document.body.innerText;
 
-            // 1. Withdrawal, Analytics, Balance Pages
+            // 1. Withdrawal, Analytics, Balance Pages (Direct String Matching)
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
 
-            // 2. Leader Board (InnerText Check)
+            // 2. Leader Board (Strict Text Check)
             if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
 
-            // 3. Trade List (win.html) - Sirf tab chalega jab URL mukammal taur par '/trade' ho (ya uski history page ho)
-            // Aur check kiya ke URL mein 'demo-trade' NA HO.
-            const endsWithTrade = url.endsWith("/trade") || url.endsWith("/trade/");
-            const containsTradeHistory = url.includes("/trade") && !url.includes("demo-trade");
-            
-            if (endsWithTrade || containsTradeHistory) {
+            // 3. Trade List (win.html) - Match using Multiple Class fallbacks
+            // Agar inme se koi bhi element screen par active milega to win.html chalegi
+            const tradeListActive = document.querySelector(".mobile-trade-list") || 
+                                    document.querySelector(".Qsdmi.xpiuY") || 
+                                    document.querySelector(".scroll-view.mobile-trade-list") ||
+                                    document.querySelector('div[class*="trade-list"]'); // Flexible match
+
+            if (tradeListActive) {
                 return {f: "win.html", k: "win"};
             }
 
-            // 4. Pure Demo-Trade Check (Android/PC) - /trade wala panga khatam
+            // 4. Strict Chart Check - Sirf aur sirf demo-trade / demo-trade/ par chale
             if (url.includes("demo-trade")) {
                 return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
             }
 
-            return null; // Kisi bhi aur unknown page par direct Error Popup
+            return null; // Baaki saare pages (like simple /trade) par Error dikhayega
         };
 
         const route = getRoute();
