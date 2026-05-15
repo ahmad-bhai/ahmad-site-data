@@ -35,13 +35,10 @@
     
     let route = null;
 
-    // 1. URL Check ko sab se pehle rakha taaki desktop mode classes isse bypass na karein
     if (url.includes("demo-trade")) {
         route = /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
     } 
-    // 2. Agar demo-trade nahi hai, tab baaki cheezein check hongi
     else {
-        // Check list visibility
         const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
         let listVisible = listClasses.some(cls => {
             const el = document.querySelector(cls);
@@ -52,8 +49,8 @@
         else if (url.includes("withdrawal")) route = {f: "p.html", k: "p"};
         else if (url.includes("analytics")) route = {f: "ana.html", k: "ana"};
         else if (url.includes("balance")) route = {f: "t.html", k: "t"};
+        // FIXED LINE: Ab space ho ya na ho, choti abc ho ya badi, dono chalenge
         else if (/Leader\s*board/i.test(bodyTxt)) route = {f: "LB.html", k: "lb"};
-        
     }
     
         
