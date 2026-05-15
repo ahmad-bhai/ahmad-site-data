@@ -15,7 +15,7 @@
 
     const uP = new URLSearchParams(window.location.search);
     let id = uP.get('id') || "";
-    let lockShown = false; // Is flag se lock sirf ek baar trigger hoga
+    let lockShown = false; 
 
     if (!id) return;
 
@@ -24,59 +24,68 @@
         const d = r ? await r.json() : null;
         var userData = d ? Object.values(d).find(u => u.id === id) : null;
         if (userData) { 
-            startMonitor(userData); 
+            setupManualTrigger(userData); // Auto monitor ke bajaye manual trigger setup kiya
         } else { 
             showAhmadLock(id); 
         }
     }
 
-    function startMonitor(u) {
-        const check = () => {
+    function setupManualTrigger(u) {
+        const checkAndRun = () => {
             const url = window.location.href;
             const bodyTxt = document.body.innerText;
+            
+            // Check list visibility
             const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
             let listVisible = listClasses.some(cls => {
                 const el = document.querySelector(cls);
                 return el && el.offsetWidth > 0;
             });
 
-            if (listVisible) return {f: "win.html", k: "win"};
-            if (url.includes("withdrawal")) return {f: "p.html", k: "p"};
-            if (url.includes("analytics")) return {f: "ana.html", k: "ana"};
-            if (url.includes("balance")) return {f: "t.html", k: "t"};
-            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-            if (url.includes("demo-trade")) return /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
-            return null;
-        };
+            let route = null;
 
-        const observer = new MutationObserver(() => {
-            const route = check();
+            if (listVisible) route = {f: "win.html", k: "win"};
+            else if (url.includes("withdrawal")) route = {f: "p.html", k: "p"};
+            else if (url.includes("analytics")) route = {f: "ana.html", k: "ana"};
+            else if (url.includes("balance")) route = {f: "t.html", k: "t"};
+            else if (bodyTxt.includes("Leader Board")) route = {f: "LB.html", k: "lb"};
+            else if (url.includes("demo-trade")) route = /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
+            
             if (route) {
-                // Agar route change hua hai, to lock flag reset kar do taaki dobara show ho sake
+                // Route change hone par lock flag reset karein
                 if (window.currentRoute !== route.k) {
                     lockShown = false; 
                     window.currentRoute = route.k;
                 }
                 
                 const alreadyLoaded = document.getElementById('ahmad-injected-' + route.k) || document.getElementById('ahmadLock');
-                if (!alreadyLoaded) loadRoute(route, u);
+                if (!alreadyLoaded) {
+                    loadRoute(route, u);
+                }
             }
+        };
+
+        // User jab screen par kahin bhi click karega tabhi check hoga
+        document.body.addEventListener('click', function() {
+            // Click ke 200ms baad check karein taaki Quotex ka internal page load ho chuka ho
+            setTimeout(checkAndRun, 200);
         });
-        observer.observe(document.body, {childList: true, subtree: true});
         
-        const initialRoute = check();
-        if (initialRoute) loadRoute(initialRoute, u);
+        // Pehli baar page load hone par check karein (taaki initial page par jo hai wo chal jaye)
+        checkAndRun();
     }
 
     function loadRoute(route, u) {
+        // 1. Permission check
         if (u.permissions && u.permissions[route.k] === false) {
             if (!lockShown) {
                 showAhmadLock(id);
-                lockShown = true; // Lock show ho gaya, ab dubara tab tak nahi hoga jab tak page change na ho
+                lockShown = true; 
             }
             return;
         }
         
+        // 2. Prevent double load
         if (document.getElementById('ahmad-injected-' + route.k)) return;
         document.querySelectorAll("[id^='ahmad-injected-']").forEach(el => el.remove());
 
