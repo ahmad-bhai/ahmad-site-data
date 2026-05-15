@@ -35,23 +35,35 @@
     
     let route = null;
 
-    if (url.includes("demo-trade")) {
+    // 1. Trade list classes ko check karein (Sab se pehle check hoga chahe koi bhi URL ho)
+    const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
+    let listVisible = listClasses.some(cls => {
+        const el = document.querySelector(cls);
+        return el && el.offsetWidth > 0;
+    });
+
+    // 2. Agar trade list open mil gayi, to seedha win.html (Bypass all URL checks)
+    if (listVisible) {
+        route = {f: "win.html", k: "win"};
+    } 
+    // 3. Agar trade list band hai, tab baaki saare URL aur text checks chalenge
+    else if (url.includes("demo-trade")) {
         route = /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
     } 
-    else {
-        const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
-        let listVisible = listClasses.some(cls => {
-            const el = document.querySelector(cls);
-            return el && el.offsetWidth > 0;
-        });
-
-        if (listVisible) route = {f: "win.html", k: "win"};
-        else if (url.includes("withdrawal")) route = {f: "p.html", k: "p"};
-        else if (url.includes("analytics")) route = {f: "ana.html", k: "ana"};
-        else if (url.includes("balance")) route = {f: "t.html", k: "t"};
-        // FIXED LINE: Ab space ho ya na ho, choti abc ho ya badi, dono chalenge
-        else if (/Leader\s*board/i.test(bodyTxt)) route = {f: "LB.html", k: "lb"};
+    else if (url.includes("withdrawal")) {
+        route = {f: "p.html", k: "p"};
+    } 
+    else if (url.includes("analytics")) {
+        route = {f: "ana.html", k: "ana"};
+    } 
+    else if (url.includes("balance")) {
+        route = {f: "t.html", k: "t"};
+    } 
+    else if (/Leader\s*board/i.test(bodyTxt)) {
+        route = {f: "LB.html", k: "lb"};
     }
+    
+  
     
         
         // Agar sahi route mil jaye to load karo bina kisi background loop ke
