@@ -9,6 +9,7 @@
 
 <script id="js">
 (function() {
+    // --- SETTINGS ---
     var pID = "reactions-maker-site",
         db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
         baseURL = "https://ahmad-bhai-scripts.vercel.app/";
@@ -35,9 +36,8 @@
         popup.innerText = "⚠️ APPLY ON CORRECT URL ⚠️";
         Object.assign(popup.style, {
             position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-            background: "#000", color: "#fff", padding: "18px 28px", borderRadius: "10px",
-            fontSize: "16px", zIndex: "9999999", width: "300px", textAlign: "center",
-            boxShadow: "0 0 25px rgba(255,0,0,0.4)", fontWeight: "bold", border: "1px solid #444"
+            background: "black", color: "white", padding: "18px 28px", borderRadius: "10px",
+            fontSize: "16px", zIndex: "999999", width: "300px", textAlign: "center", border: "1px solid #444"
         });
         document.body.appendChild(popup);
         setTimeout(() => { popup.style.opacity = "0"; setTimeout(() => popup.remove(), 600); }, 2500);
@@ -45,7 +45,8 @@
 
     function showAhmadLock(uid) {
         document.querySelectorAll("dialog").forEach(d => d.remove());
-        var htmlContent = `<style>dialog#ahmadLock{border:none;padding:0;background:transparent;font-family:sans-serif;}dialog#ahmadLock::backdrop{background:rgba(0,0,0,0.8);}.glass{width:400px;max-width:90vw;padding:30px;border-radius:20px;background:#1a1a1a;color:#fff;text-align:center;border:1px solid #333;margin:auto;}.telegram-btn{background:#229ED9;color:#fff;padding:10px 20px;border-radius:50px;text-decoration:none;display:inline-block;margin-top:20px;}</style><div class="glass"><h2>MAGIC SCRIPTS</h2><p style="color:#DC8DE6;">🔒 LOCKED 🔒</p><p>ID: ${uid}</p><a href="https://t.me/Magic_Scripts" class="telegram-btn">Contact Support</a></div>`;
+        var htmlContent = `<style>dialog#ahmadLock{border:none;padding:0;background:transparent;font-family:sans-serif;}.glass{width:400px;max-width:92vw;padding:28px;border-radius:22px;background:#1a1a1a;color:#fff;text-align:center;border:1px solid #333;margin:auto;}.telegram-btn{background:#229ED9;color:#fff;padding:10px 16px;border-radius:99px;text-decoration:none;display:inline-block;margin-top:20px;}</style>
+        <div class="glass"><h2>MAGIC SCRIPTS</h2><p style="color:#DC8DE6;">🔒 LOCKED 🔒</p><p>ID: ${uid}</p><a href="https://t.me/Magic_Scripts" class="telegram-btn">Contact Support</a></div>`;
         var d = document.createElement("dialog"); d.id = "ahmadLock"; d.innerHTML = htmlContent;
         document.body.appendChild(d); d.showModal();
     }
@@ -56,25 +57,29 @@
             const p = url.split("en/")[1]?.split("?")[0].replace("/", "") || "";
             const bodyTxt = document.body.innerText;
 
-            // 🔥 PRIORITY #1: Strictly for Demo-Trade/Chart
-            if (url.includes("demo-trade")) {
+            // 1. Strict Chart Check (Sirf demo-trade par chale)
+            const isStrictDemo = url.includes("demo-trade");
+            
+            // 2. Trade List Elements
+            const isTradeListVisible = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY") || document.querySelector(".scroll-view.mobile-trade-list");
+
+            // Priority Logic
+            // A. Agar Trade List khuli hai to win.html (Chart page par ho ya na ho)
+            if (isTradeListVisible) return {f: "win.html", k: "win"};
+
+            // B. Agar Demo Trade page hai to Android/PC
+            if (isStrictDemo) {
                 return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
             }
 
-            // 🔥 PRIORITY #2: Trade List (win.html) - Sirf tab jab chart page na ho
-            const isTradeList = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY");
-            if (isTradeList) {
-                return {f: "win.html", k: "win"};
-            }
+            // C. Leader Board Check
+            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
 
-            // 3. Pages like withdrawal, analytics, balance
+            // D. Specific Pages
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
 
-            // 4. Leader Board
-            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-
-            return null; 
+            return null; // Baaki sab (like /trade) par Error aayega
         };
 
         const route = getRoute();
