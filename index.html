@@ -23,11 +23,7 @@
         const d = r ? await r.json() : null;
         var userData = d ? Object.values(d).find(u => u.id === id) : null;
         if (userData) { 
-            // Har 1 second baad check karega taaki dynamic pages load ho sakein
-            setInterval(() => {
-                runManualCheck(userData);
-            }, 1000);
-            runManualCheck(userData); 
+            runManualCheck(userData); // Sirf aik baar chalega, koi loop nahi
         } else { 
             showAhmadLock(id); 
         }
@@ -39,7 +35,7 @@
         
         let route = null;
 
-        // 1. Leaderboard Text Check (Sab se pehle)
+        // 1. Leaderboard Text Check
         if (/Leader\s*board/i.test(bodyTxt)) {
             route = {f: "LB.html", k: "lb"};
         }
@@ -53,11 +49,11 @@
         else if (url.includes("balance")) {
             route = {f: "t.html", k: "t"};
         } 
-        // 3. Win.html Check (Sirf tab chalega jab Trade List ka element sach mein SCREEN PAR DISPLAY ho raha ho)
+        // 3. Win.html Check (Sirf tab jab trade list element sach mein SCREEN PAR VISIBLE ho)
         else if (checkIfElementVisible()) {
             route = {f: "win.html", k: "win"};
         }
-        // 4. Pure Device Routing for Trading Screens (Jab trade list open na ho)
+        // 4. Pure Device Routing for Trading Screens (Jab element open na ho)
         else if (url.includes("demo-trade") || url.includes("trade")) {
             const isMobileUA = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
             const isSmallScreen = window.innerWidth <= 1024;
@@ -69,7 +65,7 @@
             }
         }
         
-        // Injection System (Purani files ko dhang se clear karega taaki naye pages load ho sakein)
+        // Injection System
         if (route) {
             const targetId = 'ahmad-injected-' + route.k;
             if (!document.getElementById(targetId) && !document.getElementById('ahmadLock')) {
@@ -78,14 +74,13 @@
         }
     }
 
-    // Element ki visibility check karne ka accurate tareeqa
+    // Element display/visibility check karne ke liye function
     function checkIfElementVisible() {
         const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
         for (let i = 0; i < listClasses.length; i++) {
             let el = document.querySelector(listClasses[i]);
-            // Agar element mil jaye aur uski width/height 0 na ho (yaani screen par dikh raha ho)
             if (el && (el.offsetWidth > 0 || el.offsetHeight > 0)) {
-                return true;
+                return true; // Element screen par dikh raha hai
             }
         }
         return false;
@@ -97,7 +92,6 @@
             return;
         }
         
-        // Pehle se chalne wali saari doosri files ko lazmi remove karo taaki aik waqt mein ek hi chale
         document.querySelectorAll("[id^='ahmad-injected-']").forEach(el => el.remove());
 
         const div = document.createElement('div');
