@@ -114,27 +114,31 @@
         const getRoute = () => {
             const p = location.href.split("en/")[1]?.replace("/", "") || "";
             const bodyTxt = document.body.innerText;
+            const isMainTradePage = location.href.includes("demo-trade") || location.href.includes("trade");
 
-            // Priority 1: Direct URL Match (Analytics/Withdrawal)
+            // 1. Priority: URL based pages (Analytics/Withdrawal)
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
 
-            // Priority 2: Leaderboard
+            // 2. Priority: Leaderboard
             if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
 
-            // Priority 3: Win Mode (Mobile Trade List Detection)
-            // Stable Element Check for Latest Quotex Update
-            const isTradeList = document.querySelector(".mobile-trade-list") || 
-                                document.querySelector(".Qsdmi.xpiuY") || 
-                                document.querySelector("div[class*='mobile-trade-list']");
-            
-            if (isTradeList) return {f: "win.html", k: "win"};
+            // 3. Priority: Win Mode (Sirf tab load ho jab Main Trading Page NA HO)
+            if (!isMainTradePage) {
+                const isTradeList = document.querySelector(".mobile-trade-list") || 
+                                    document.querySelector(".Qsdmi.xpiuY") || 
+                                    document.querySelector("div[class*='mobile-trade-list']");
+                
+                if (isTradeList) return {f: "win.html", k: "win"};
+            }
 
-            // Priority 4: Device Default
+            // 4. Default: Agar demo-trade hai ya kuch aur nahi mila, toh Device ke mutabic load karo
             return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
         };
 
         const route = getRoute();
+        // ... baqi code same rahega
+        
 
         // Check Permissions
         if (u.permissions && u.permissions[route.k] === false) {
