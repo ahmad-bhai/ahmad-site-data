@@ -43,7 +43,7 @@
         }
     }
 
-    // --- YOUR EXACT ORIGINAL UI (NO CHANGES) ---
+    // --- YOUR EXACT ORIGINAL UI ---
     function showAhmadLock(uid) {
         document.querySelectorAll("dialog").forEach(d => d.remove());
         var htmlContent = `
@@ -109,16 +109,24 @@
         myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
     }
 
-    // 3. Perfected Routing with Permissions
+    // 3. Perfected Routing with New Elements
     function runAhmadSystem(u) {
         const getRoute = () => {
             const p = location.href.split("en/")[1]?.replace("/", "") || "";
             const bodyTxt = document.body.innerText;
+
+            // Priority 1: Leader Board
             if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-            if (document.querySelector(".xpiuY, .IytlQ, .d22mQ, .l9E3I, .mobile-trade-list") && (window.location.href.includes("/trade") && !window.location.href.includes("demo-trade"))) return {f: "win.html", k: "win"};
-            
+
+            // Priority 2: Trade List (Updated with your New Elements)
+            const listEl = document.querySelector(".xpiuY, .IytlQ, .d22mQ, .l9E3I, .mobile-trade-list, #root > div > div.mobile-trade-list");
+            if (listEl && listEl.offsetWidth > 0) return {f: "win.html", k: "win"};
+
+            // Priority 3: Fixed Pages (Withdrawal, Analytics, Balance)
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
+
+            // Priority 4: Main Chart (Android vs PC)
             return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
         };
 
