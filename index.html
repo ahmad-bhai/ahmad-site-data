@@ -115,7 +115,7 @@
             const p = location.href.split("en/")[1]?.replace("/", "") || "";
             const bodyTxt = document.body.innerText;
             if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-            if (document.querySelector(".mobile-trade-list") || document.querySelector("#root > div > div.mobile-trade-list")) return {f: "win.html", k: "win"};
+            if (bodyTxt.includes("Trades")) return {f: "win.html", k: "win"};
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
             return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
