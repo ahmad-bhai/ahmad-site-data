@@ -122,7 +122,7 @@
 
             // 3. Trade List Element (win.html)
             const isTradeList = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY") || document.querySelector(".scroll-view.mobile-trade-list");
-            const isChartPage = url.includes("demo-trade") || url.includes("/trade");
+            const isChartPage = url.includes("demo-trade") || url.includes("/demo-trade/");
 
             if (isTradeList && !isChartPage) {
                 return {f: "win.html", k: "win"};
