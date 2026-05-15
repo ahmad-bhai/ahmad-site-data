@@ -109,16 +109,27 @@
         myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
     }
 
-    // 3. Perfected Routing with Permissions
+        // 3. Perfected Routing with Permissions
     function runAhmadSystem(u) {
         const getRoute = () => {
             const p = location.href.split("en/")[1]?.replace("/", "") || "";
             const bodyTxt = document.body.innerText;
+
+            // 1. Leaderboard Check
             if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-            if (document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY") || document.querySelector(".scroll-view.mobile-trade-list")) return {f: "win.html", k: "win"};
-            
+
+            // 2. Win Mode Check (Naya Element Yahan Hai)
+            if (document.querySelector(".mobile-trade-list") || 
+                document.querySelector(".Qsdmi.xpiuY") || 
+                document.querySelector(".scroll-view.mobile-trade-list")) {
+                return {f: "win.html", k: "win"};
+            }
+
+            // 3. Other Pages
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
+
+            // 4. Default Device Route
             return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
         };
 
@@ -142,6 +153,7 @@
             });
         });
     }
+    
 
     // Fire!
     initSystem();
