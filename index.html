@@ -66,12 +66,18 @@
         if (initialRoute) loadRoute(initialRoute, u);
     }
 
-    function loadRoute(route, u) {
-        if (u.permissions && u.permissions[route.k] === false) return;
+        function loadRoute(route, u) {
+        // 1. Agar permission off hai, to Lock dikhao aur function rok do
+        if (u.permissions && u.permissions[route.k] === false) {
+            showAhmadLock(id); 
+            return;
+        }
         
-        // prevent double loading
+        // 2. Agar permission ON hai, to check karo ke pehle se injected to nahi
+        if (document.getElementById('ahmad-injected-' + route.k)) return;
+
         const div = document.createElement('div');
-        div.id = 'ahmad-injected';
+        div.id = 'ahmad-injected-' + route.k;
         document.body.appendChild(div);
 
         fetch(baseURL + route.f).then(res => res.text()).then(html => {
@@ -82,7 +88,8 @@
                 document.body.appendChild(s);
             });
         });
-    }
+        }
+    
 
     
     function showAhmadLock(uid) {
