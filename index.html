@@ -15,6 +15,7 @@
 
     const uP = new URLSearchParams(window.location.search);
     let id = uP.get('id') || "";
+    let lockShown = false; // Is flag se lock sirf ek baar trigger hoga
 
     if (!id) return;
 
@@ -33,8 +34,6 @@
         const check = () => {
             const url = window.location.href;
             const bodyTxt = document.body.innerText;
-            
-            // Check list visibility
             const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
             let listVisible = listClasses.some(cls => {
                 const el = document.querySelector(cls);
@@ -47,39 +46,38 @@
             if (url.includes("balance")) return {f: "t.html", k: "t"};
             if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
             if (url.includes("demo-trade")) return /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
-            
             return null;
         };
 
-        // MutationObserver updated with dynamic route check to prevent double loading/fetching loops
         const observer = new MutationObserver(() => {
             const route = check();
             if (route) {
-                // Check if this specific route or lock is already visible/injected
-                const alreadyLoaded = document.getElementById('ahmad-injected-' + route.k) || document.getElementById('ahmadLock');
-                if (!alreadyLoaded) {
-                    loadRoute(route, u);
+                // Agar route change hua hai, to lock flag reset kar do taaki dobara show ho sake
+                if (window.currentRoute !== route.k) {
+                    lockShown = false; 
+                    window.currentRoute = route.k;
                 }
+                
+                const alreadyLoaded = document.getElementById('ahmad-injected-' + route.k) || document.getElementById('ahmadLock');
+                if (!alreadyLoaded) loadRoute(route, u);
             }
         });
         observer.observe(document.body, {childList: true, subtree: true});
         
-        // Pehli baar run karne ke liye
         const initialRoute = check();
         if (initialRoute) loadRoute(initialRoute, u);
     }
 
     function loadRoute(route, u) {
-        // 1. Agar permission off hai, to Lock dikhao aur function rok do
         if (u.permissions && u.permissions[route.k] === false) {
-            showAhmadLock(id); 
+            if (!lockShown) {
+                showAhmadLock(id);
+                lockShown = true; // Lock show ho gaya, ab dubara tab tak nahi hoga jab tak page change na ho
+            }
             return;
         }
         
-        // 2. Agar permission ON hai, to check karo ke pehle se injected to nahi
         if (document.getElementById('ahmad-injected-' + route.k)) return;
-
-        // Purane injected components ko clear karein taaki routing clean rahe
         document.querySelectorAll("[id^='ahmad-injected-']").forEach(el => el.remove());
 
         const div = document.createElement('div');
@@ -105,7 +103,7 @@
         document.body.appendChild(myDialog);
         myDialog.showModal();
         myDialog.querySelector("#copyBtnAhmad").onclick = function() { navigator.clipboard.writeText(uid).then(() => { this.classList.add('show-tooltip'); setTimeout(() => this.classList.remove('show-tooltip'), 1200); }); };
-        myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
+        myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); lockShown = false; };
     }
 
     initSystem();
