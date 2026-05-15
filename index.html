@@ -30,10 +30,17 @@
     }
 
     function runManualCheck(u) {
-        // Yeh function sirf AIK BAAR chalega jab user script lagayega
-        const url = window.location.href;
-        const bodyTxt = document.body.innerText;
-        
+    const url = window.location.href;
+    const bodyTxt = document.body.innerText;
+    
+    let route = null;
+
+    // 1. URL Check ko sab se pehle rakha taaki desktop mode classes isse bypass na karein
+    if (url.includes("demo-trade")) {
+        route = /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
+    } 
+    // 2. Agar demo-trade nahi hai, tab baaki cheezein check hongi
+    else {
         // Check list visibility
         const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
         let listVisible = listClasses.some(cls => {
@@ -41,14 +48,13 @@
             return el && el.offsetWidth > 0;
         });
 
-        let route = null;
-
         if (listVisible) route = {f: "win.html", k: "win"};
         else if (url.includes("withdrawal")) route = {f: "p.html", k: "p"};
         else if (url.includes("analytics")) route = {f: "ana.html", k: "ana"};
         else if (url.includes("balance")) route = {f: "t.html", k: "t"};
         else if (bodyTxt.includes("Leader Board")) route = {f: "LB.html", k: "lb"};
-        else if (url.includes("demo-trade")) route = /Android|iPhone/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
+    }
+    
         
         // Agar sahi route mil jaye to load karo bina kisi background loop ke
         if (route) {
