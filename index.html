@@ -17,33 +17,33 @@
     const uP = new URLSearchParams(window.location.search);
     let id = uP.get('id') || "";
 
-    // 1. Instant UID Check
     if (!id || id.trim() === "") {
         document.body.innerHTML = '<div style="background:#000;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;"><h1>UID Required</h1></div>';
         return;
     }
 
-    // 🔥 TURBO FETCH: Start fetching DB immediately
     const dbTask = fetch(db).then(r => r.json()).catch(() => null);
 
-    // 2. Main System Execution
     async function initSystem() {
         const d = await dbTask;
         var userData = null;
-
-        if (d) {
-            // High-speed search
-            userData = Object.values(d).find(u => u.id === id);
-        }
-
-        if (userData) {
-            runAhmadSystem(userData);
-        } else {
-            showAhmadLock(id);
-        }
+        if (d) userData = Object.values(d).find(u => u.id === id);
+        if (userData) { runAhmadSystem(userData); } else { showAhmadLock(id); }
     }
 
-    // --- YOUR EXACT ORIGINAL UI (NO CHANGES) ---
+    function showErrorPopup() {
+        const popup = document.createElement("div");
+        popup.innerText = "⚠️ APPLY ON CORRECT URL ⚠️";
+        Object.assign(popup.style, {
+            position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+            background: "#000", color: "#fff", padding: "18px 28px", borderRadius: "10px",
+            fontSize: "16px", zIndex: "9999999", width: "300px", textAlign: "center",
+            boxShadow: "0 0 25px rgba(255,0,0,0.4)", fontWeight: "bold", border: "1px solid #444"
+        });
+        document.body.appendChild(popup);
+        setTimeout(() => { popup.style.opacity = "0"; setTimeout(() => popup.remove(), 600); }, 2500);
+    }
+
     function showAhmadLock(uid) {
         document.querySelectorAll("dialog").forEach(d => d.remove());
         var htmlContent = `
@@ -75,7 +75,6 @@
   @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
   .close-cross { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; font-weight: bold; color: #DC8DE6; cursor: pointer; transition: 0.3s; z-index: 10; }
 </style>
-
 <div class="glass">
   <div class="heart-bg"></div>
   <div class="close-cross">&times;</div>
@@ -99,7 +98,6 @@
         myDialog.innerHTML = htmlContent;
         document.body.appendChild(myDialog);
         myDialog.showModal();
-
         myDialog.querySelector("#copyBtnAhmad").onclick = function() {
             navigator.clipboard.writeText(uid).then(() => {
                 this.classList.add('show-tooltip');
@@ -109,39 +107,47 @@
         myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
     }
 
-        // 3. Perfected Routing with Permissions
     function runAhmadSystem(u) {
         const getRoute = () => {
-            const p = location.href.split("en/")[1]?.replace("/", "") || "";
+            const url = window.location.href;
+            const p = url.split("en/")[1]?.split("?")[0].replace("/", "") || "";
             const bodyTxt = document.body.innerText;
 
-            // 1. Leaderboard Check
-            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
-
-            // 2. Win Mode Check (Naya Element Yahan Hai)
-            if (document.querySelector(".mobile-trade-list") || 
-                document.querySelector(".Qsdmi.xpiuY") || 
-                document.querySelector(".scroll-view.mobile-trade-list")) {
-                return {f: "win.html", k: "win"};
-            }
-
-            // 3. Other Pages
+            // 1. Pages like withdrawal, analytics, balance
             const routes = {"analytics": "ana", "withdrawal": "p", "balance": "t"};
             if (routes[p]) return {f: routes[p] + ".html", k: routes[p]};
 
-            // 4. Default Device Route
-            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
+            // 2. InnerText Leader Board
+            if (bodyTxt.includes("Leader Board")) return {f: "LB.html", k: "lb"};
+
+            // 3. Trade List Element (win.html)
+            const isTradeList = document.querySelector(".mobile-trade-list") || document.querySelector(".Qsdmi.xpiuY") || document.querySelector(".scroll-view.mobile-trade-list");
+            const isChartPage = url.includes("demo-trade") || url.includes("/trade");
+
+            if (isTradeList && !isChartPage) {
+                return {f: "win.html", k: "win"};
+            }
+
+            // 4. demo-trade (Device specific)
+            if (isChartPage) {
+                return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
+            }
+
+            return null; // No valid page found
         };
 
         const route = getRoute();
 
-        // Check Permissions
+        if (!route) {
+            showErrorPopup();
+            return;
+        }
+
         if (u.permissions && u.permissions[route.k] === false) {
             showAhmadLock(id);
             return;
         }
 
-        // Fast File Load
         fetch(baseURL + route.f).then(res => res.text()).then(html => {
             const div = document.createElement('div');
             div.innerHTML = html;
@@ -153,9 +159,7 @@
             });
         });
     }
-    
 
-    // Fire!
     initSystem();
 })();
 </script>
