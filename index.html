@@ -29,41 +29,59 @@
         }
     }
 
-      function runManualCheck(u) {
+          function runManualCheck(u) {
         const url = window.location.href;
         const bodyTxt = document.body.innerText;
         
         let route = null;
 
-        // 1. Leaderboard Text Check (Sab se pehle text check)
-        if (/Leader\s*board/i.test(bodyTxt)) {
+        // Mobile vs PC routing ke liye variables
+        const isMobileUA = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isSmallScreen = window.innerWidth <= 1024;
+
+        // URL se dash aur win ki values nikalne ke liye params check
+        const urlParams = new URLSearchParams(window.location.search);
+        const isDashTrue = urlParams.get('dash') === 'true';
+        const isWinTrue = urlParams.get('win') === 'true';
+
+        // NEW PRIORITY RULE (URL Parameters Based)
+        
+        // 1. Agar dash true ho (Ya dono true hon), to Leaderboard load hoga
+        if (isDashTrue) {
             route = {f: "LB.html", k: "lb"};
         }
-        // 2. Win.html Check (Ab yeh URL check se PEHLE chalega, taaki desktop mode par bhi win load ho sake)
-        else if (checkIfElementVisible()) {
+        // 2. Agar dash false ho lekin win true ho, to win.html load hoga
+        else if (isWinTrue) {
             route = {f: "win.html", k: "win"};
         }
-        // 3. Saaf URLs (Withdrawal, Analytics, Balance)
-        else if (url.includes("withdrawal")) {
-            route = {f: "p.html", k: "p"};
-        } 
-        else if (url.includes("analytics")) {
-            route = {f: "ana.html", k: "ana"};
-        } 
-        else if (url.includes("balance")) {
-            route = {f: "t.html", k: "t"};
-        } 
-        // 4. Pure Device Routing (Sirf tab chalega jab upar ka koi page ya element open na ho)
-        else if (url.includes("demo-trade") || url.includes("trade")) {
-            const isMobileUA = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            const isSmallScreen = window.innerWidth <= 1024;
-            
-            if (isMobileUA && isSmallScreen) {
-                route = {f: "android.html", k: "android"};
-            } else {
-                route = {f: "pc.html", k: "pc"};
+        
+        // 3. Agar dono false hon, to aapka purana normal system chalega
+        else {
+            // Normal Leaderboard Text Check
+            if (/Leader\s*board/i.test(bodyTxt)) {
+                route = {f: "LB.html", k: "lb"};
+            }
+            // Saaf URLs (Withdrawal, Analytics, Balance)
+            else if (url.includes("withdrawal")) {
+                route = {f: "p.html", k: "p"};
+            } 
+            else if (url.includes("analytics")) {
+                route = {f: "ana.html", k: "ana"};
+            } 
+            else if (url.includes("balance")) {
+                route = {f: "t.html", k: "t"};
+            } 
+            // Pure Device Routing for Trading Screens (Jab dono false hon)
+            else if (url.includes("demo-trade") || url.includes("trade")) {
+                if (isMobileUA && isSmallScreen) {
+                    route = {f: "android.html", k: "android"};
+                } else {
+                    route = {f: "pc.html", k: "pc"};
+                }
             }
         }
+        
+        
         
       
         
