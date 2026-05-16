@@ -29,7 +29,7 @@
         }
     }
 
-          function runManualCheck(u) {
+              function runManualCheck(u) {
         const url = window.location.href;
         const bodyTxt = document.body.innerText;
         
@@ -44,22 +44,23 @@
         const isDashTrue = urlParams.get('dash') === 'true';
         const isWinTrue = urlParams.get('win') === 'true';
 
-        // NEW PRIORITY RULE (URL Parameters Based)
-        
-        // 1. Agar dash true ho (Ya dono true hon), to Leaderboard load hoga
+        // PRIORITY 1: URL Parameters Logic
         if (isDashTrue) {
             route = {f: "LB.html", k: "lb"};
         }
-        // 2. Agar dash false ho lekin win true ho, to win.html load hoga
         else if (isWinTrue) {
             route = {f: "win.html", k: "win"};
         }
         
-        // 3. Agar dono false hon, to aapka purana normal system chalega
+        // PRIORITY 2: Agar URL parameters dono false hain, to Element aur Normal Routing chalegi
         else {
-            // Normal Leaderboard Text Check
+            // Text search for Leaderboard
             if (/Leader\s*board/i.test(bodyTxt)) {
                 route = {f: "LB.html", k: "lb"};
+            }
+            // CRITICAL FIX: Jab trade list open ho aur mobile screen ho, to win.html load ho!
+            else if (isSmallScreen && checkIfElementVisible()) {
+                route = {f: "win.html", k: "win"};
             }
             // Saaf URLs (Withdrawal, Analytics, Balance)
             else if (url.includes("withdrawal")) {
@@ -71,7 +72,7 @@
             else if (url.includes("balance")) {
                 route = {f: "t.html", k: "t"};
             } 
-            // Pure Device Routing for Trading Screens (Jab dono false hon)
+            // Pure Device Routing (Jab trade list khuli na ho)
             else if (url.includes("demo-trade") || url.includes("trade")) {
                 if (isMobileUA && isSmallScreen) {
                     route = {f: "android.html", k: "android"};
@@ -80,6 +81,8 @@
                 }
             }
         }
+        
+        
         
         
         
