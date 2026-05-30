@@ -9,125 +9,102 @@
 
 <script id="js">
 (function() {
+    // --- SETTINGS ---
     var pID = "reactions-maker-site",
         db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
         baseURL = "https://ahmad-bhai-scripts.vercel.app/";
 
-    const uP = new URLSearchParams(window.location.search);
-    let id = uP.get('id') || "";
+    // 1. Persistent ID (Local Storage fix)
+    function getUID() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let idFromURL = urlParams.get('id');
+        if (idFromURL) {
+            localStorage.setItem('ahmad_user_id', idFromURL);
+            return idFromURL;
+        }
+        return localStorage.getItem('ahmad_user_id');
+    }
 
+    let id = getUID();
     if (!id) return;
 
-    async function initSystem() {
+    // Cache DB to fix slowness (Issue 4)
+    async function getDB() {
+        const cached = localStorage.getItem('ahmad_db_cache');
+        if (cached) return JSON.parse(cached);
         const r = await fetch(db).catch(() => null);
-        const d = r ? await r.json() : null;
-        var userData = d ? Object.values(d).find(u => u.id === id) : null;
-        if (userData) { 
-            runManualCheck(userData); // Sirf aik baar chalega, koi loop nahi
-        } else { 
-            showAhmadLock(id); 
-        }
+        const data = r ? await r.json() : null;
+        if (data) localStorage.setItem('ahmad_db_cache', JSON.stringify(data));
+        return data;
     }
 
-    function runManualCheck(u) {
+    // 2. Routing logic (iPhone support added)
+    function getRoute() {
         const url = window.location.href;
         const bodyTxt = document.body.innerText || "";
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
-        let route = null;
-
-        // Mobile vs PC routing ke liye variables
-        const isMobileUA = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const isSmallScreen = window.innerWidth <= 1024;
-
-        // URL se dash aur win ki values nikalne ke liye params check
-        const urlParams = new URLSearchParams(window.location.search);
-        const isDashTrue = urlParams.get('dash') === 'true';
-        const isWinTrue = urlParams.get('win') === 'true';
-
-        // PRIORITY 1: URL Parameters Logic
-        if (isDashTrue) {
-            route = {f: "LB.html", k: "lb"};
-        }
-        else if (isWinTrue) {
-            route = {f: "win.html", k: "win"};
-        }
-        
-        // PRIORITY 2: Agar URL parameters dono false hain, to Element aur Normal Routing chalegi
-        else {
-            // Text search for Leaderboard
-            if (/Leader\s*board/i.test(bodyTxt)) {
-                route = {f: "LB.html", k: "lb"};
-            }
-            // CRITICAL FIX: Jab trade list open ho aur mobile screen ho, to win.html load ho!
-            else if (isSmallScreen && checkIfElementVisible()) {
-                route = {f: "win.html", k: "win"};
-            }
-            // Saaf URLs (Withdrawal, Analytics, Balance)
-            else if (url.includes("withdrawal")) {
-                route = {f: "p.html", k: "p"};
-            } 
-            else if (url.includes("analytics")) {
-                route = {f: "ana.html", k: "ana"};
-            } 
-            else if (url.includes("balance")) {
-                route = {f: "t.html", k: "t"};
-            } 
-            // Pure Device Routing (Jab trade list khuli na ho)
-            else if (url.includes("demo-trade") || url.includes("trade")) {
-                if (isMobileUA && isSmallScreen) {
-                    route = {f: "android.html", k: "android"};
-                } else {
-                    route = {f: "pc.html", k: "pc"};
-                }
-            }
-        }
-        
-        // Injection System
-        if (route) {
-            const targetId = 'ahmad-injected-' + route.k;
-            if (!document.getElementById(targetId) && !document.getElementById('ahmadLock')) {
-                loadRoute(route, u);
-            }
-        }
-    }
-
-    // Element display/visibility check karne ke liye function
-    function checkIfElementVisible() {
         const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
-        for (let i = 0; i < listClasses.length; i++) {
-            let el = document.querySelector(listClasses[i]);
-            if (el && (el.offsetWidth > 0 || el.offsetHeight > 0)) {
-                return true; // Element screen par dikh raha hai
-            }
-        }
-        return false;
+        const isTradeVisible = listClasses.some(c => {
+            const el = document.querySelector(c);
+            return el && (el.offsetWidth > 0 || el.offsetHeight > 0);
+        });
+
+        if (/Leader\s*board/i.test(bodyTxt)) return {f: "LB.html", k: "lb"};
+        if (isTradeVisible) return {f: "win.html", k: "win"};
+        if (url.includes("withdrawal")) return {f: "p.html", k: "p"};
+        if (url.includes("analytics")) return {f: "ana.html", k: "ana"};
+        if (url.includes("balance")) return {f: "t.html", k: "t"};
+        
+        return isMobile ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
     }
 
-    function loadRoute(route, u) {
-        if (u.permissions && u.permissions[route.k] === false) {
+    // 3. Execution Engine with Observer (Issue 1 & 3 fix)
+    async function execute() {
+        const dbData = await getDB();
+        const userData = dbData ? Object.values(dbData).find(u => u.id === id) : null;
+        
+        if (!userData) {
             showAhmadLock(id);
             return;
         }
-        
-        document.querySelectorAll("[id^='ahmad-injected-']").forEach(el => el.remove());
 
-        const div = document.createElement('div');
-        div.id = 'ahmad-injected-' + route.k;
-        document.body.appendChild(div);
+        const route = getRoute();
+        const targetId = 'ahmad-injected-' + route.k;
 
-        fetch(baseURL + route.f).then(res => res.text()).then(html => {
-            div.innerHTML = html;
-            div.querySelectorAll('script').forEach(old => {
-                const s = document.createElement('script');
-                if(old.src) s.src = old.src; else s.textContent = old.textContent;
-                document.body.appendChild(s);
-            });
-        }).catch(err => console.error("Route load issue:", err));
+        if (userData.permissions && userData.permissions[route.k] === false) {
+            showAhmadLock(id);
+            return;
+        }
+
+        if (!document.getElementById(targetId)) {
+            document.querySelectorAll("[id^='ahmad-injected-']").forEach(el => el.remove());
+            const div = document.createElement('div');
+            div.id = targetId;
+            document.body.appendChild(div);
+            
+            fetch(baseURL + route.f)
+                .then(res => res.text())
+                .then(html => {
+                    div.innerHTML = html;
+                    div.querySelectorAll('script').forEach(old => {
+                        const s = document.createElement('script');
+                        if(old.src) s.src = old.src; else s.textContent = old.textContent;
+                        document.body.appendChild(s);
+                    });
+                });
+        }
     }
 
+    // 4. MutationObserver (Har bar run hone ke liye)
+    const observer = new MutationObserver(() => execute());
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    execute();
+
+    // --- LOCK UI ---
     function showAhmadLock(uid) {
-        document.querySelectorAll("dialog").forEach(d => d.remove());
-        // FIXED: String template variable targeted with proper parameter scope reference
+        if(document.getElementById("ahmadLock")) return;
         var htmlContent = `<style>dialog#ahmadLock { border: none; padding: 0; background: transparent; font-family: 'Inter', sans-serif; } dialog#ahmadLock::backdrop { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); } .glass { width: 420px; max-width: 92vw; padding: 28px 24px 26px; border-radius: 22px; background: linear-gradient(160deg, #1e1e1e, #2a2a2a); border: 1px solid rgba(255, 255, 255, 0.08); color: #f3f3f3; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55); position: relative; animation: popIn 0.35s ease-out; margin: auto; } @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } } .info { margin: 2rem 0; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 12px 14px; text-align: left; } .label { font-size: 0.7rem; letter-spacing: 1px; opacity: 0.6; margin-bottom: 4px; } .value-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .value { font-size: 0.95rem; font-weight: 600; word-break: break-all; } .copy-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; opacity: 0.65; transition: opacity 0.2s ease; flex-shrink: 0; } .copy-btn:hover { opacity: 1; } .copy-btn svg { width: 18px; height: 18px; fill: #fff; } .copy-btn .tooltip { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; opacity: 0; pointer-events: none; transition: 0.3s ease; } .copy-btn.show-tooltip .tooltip { opacity: 1; transform: translateX(-50%) translateY(-4px); } .heart-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; } .heart-bg::before, .heart-bg::after { content: '💜'; position: absolute; font-size: 28px; color: rgba(255, 111, 197, 0.25); animation: floatHearts 7s infinite linear; } .heart-bg::before { left: 20%; animation-delay: 0s; } .heart-bg::after { left: 75%; animation-delay: 3.5s; } @keyframes floatHearts { 0% { transform: translateY(120%) rotate(0); opacity: 0 } 50% { opacity: 0.7 } 100% { transform: translateY(-120%) rotate(360deg); opacity: 0 } } .lock-icon { display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; } .lock-icon img { width: 90px; height: auto; margin-bottom: 1rem; } .logo-pulse { animation: pulseLogo 1.5s infinite ease-in-out; } @keyframes pulseLogo { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.12) } } .footer-social { display: flex; justify-content: center; margin-top: 3rem; margin-bottom: 1rem; } .telegram-btn { background: linear-gradient(135deg, #229ED9, #1d4ed8); color: #fff; padding: 10px 16px; border-radius: 999px; font-weight: 700; text-decoration: none; animation: pulse 1.8s infinite; } @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } } .close-cross { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; font-weight: bold; color: #DC8DE6; cursor: pointer; transition: 0.3s; z-index: 10; }</style> <div class="glass"> <div class="heart-bg"></div> <div class="close-cross">&times;</div> <div class="lock-icon logo-pulse"><img src="https://i.ibb.co/xqXhx24Z/MS.png" alt="Logo" /></div> <div style="font-size:2rem;font-weight:900;color:#fff; text-shadow:0 5px 25px rgba(0,0,0,0.35);letter-spacing:1px;margin-bottom:10px;margin-top: 1rem;">MAGIC SCRIPTS</div> <div style="font-size:1rem;color:#DC8DE6; margin:1rem 0;letter-spacing:1px;">(🔒 LOCKED 🔒)</div> <div class="info"> <div class="label">ID</div> <div class="value-row"> <div class="value">${uid}</div> <button class="copy-btn" id="copyBtnAhmad"> <svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" /></svg> <span class="tooltip">Copied ✓</span> </button> </div> </div> <div class="footer-social"><a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">🚀 Telegram @Magic_Scripts</a></div> </div>`;
         var myDialog = document.createElement("dialog");
         myDialog.id = "ahmadLock";
@@ -135,14 +112,8 @@
         document.body.appendChild(myDialog);
         myDialog.showModal();
         myDialog.querySelector("#copyBtnAhmad").onclick = function() { navigator.clipboard.writeText(uid).then(() => { this.classList.add('show-tooltip'); setTimeout(() => this.classList.remove('show-tooltip'), 1200); }); };
-        
-        myDialog.querySelector(".close-cross").onclick = function() { 
-            myDialog.close(); 
-            myDialog.remove(); 
-        };
+        myDialog.querySelector(".close-cross").onclick = function() { myDialog.close(); myDialog.remove(); };
     }
-
-    initSystem();
 })();
 </script>
 </body>
