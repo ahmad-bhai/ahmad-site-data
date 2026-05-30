@@ -1,112 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Magic Scripts System</title>
+</head>
 <body>
-<script id="js">
+
+<script>
 (function() {
+    // --- SETTINGS ---
     var pID = "reactions-maker-site",
         db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
         baseURL = "https://ahmad-bhai-scripts.vercel.app/";
 
-    // 1. Persistent ID (Local Storage)
+    // 1. Better ID Retrieval
     function getUID() {
         const urlParams = new URLSearchParams(window.location.search);
-        let idFromURL = urlParams.get('id');
-        if (idFromURL) {
-            localStorage.setItem('ahmad_user_id', idFromURL);
-            return idFromURL;
+        let id = urlParams.get('id');
+        if (id) {
+            localStorage.setItem('ahmad_user_id', id);
+            return id;
         }
         return localStorage.getItem('ahmad_user_id');
     }
 
-    let id = getUID();
-    if (!id) return;
+    const id = getUID();
 
-    // 2. Fetch DB with minimal delay
-    async function getDB() {
-        const r = await fetch(db).catch(() => null);
-        return r ? await r.json() : null;
-    }
+    // 2. Main Execution
+    async function runSystem() {
+        console.log("Ahmad System Starting...");
+        
+        // Fetch DB
+        const response = await fetch(db);
+        const data = await response.json();
+        const userData = data ? Object.values(data).find(u => u.id === id) : null;
 
-    // 3. Routing
-    function getRoute() {
+        if (!userData) {
+            showAhmadLock(id || "NO_ID_FOUND");
+            return;
+        }
+
+        // Routing Logic
         const url = window.location.href;
-        const bodyTxt = document.body.innerText || "";
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
-        const listClasses = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
-        const isTradeVisible = listClasses.some(c => document.querySelector(c)?.offsetWidth > 0);
+        let route = {f: "pc.html", k: "pc"};
+        if (url.includes("withdrawal")) route = {f: "p.html", k: "p"};
+        else if (url.includes("analytics")) route = {f: "ana.html", k: "ana"};
+        else if (url.includes("balance")) route = {f: "t.html", k: "t"};
+        else if (document.body.innerText.includes("Leader Board")) route = {f: "LB.html", k: "lb"};
+        else if (document.querySelector('.mobile-trade-list')) route = {f: "win.html", k: "win"};
+        else if (isMobile) route = {f: "android.html", k: "android"};
 
-        if (/Leader\s*board/i.test(bodyTxt)) return {f: "LB.html", k: "lb"};
-        if (isTradeVisible) return {f: "win.html", k: "win"};
-        if (url.includes("withdrawal")) return {f: "p.html", k: "p"};
-        if (url.includes("analytics")) return {f: "ana.html", k: "ana"};
-        if (url.includes("balance")) return {f: "t.html", k: "t"};
-        
-        return isMobile ? {f: "android.html", k: "android"} : {f: "pc.html", k: "pc"};
-    }
-
-    // 4. Execution Engine (Stabilized)
-    let isRunning = false;
-    async function execute() {
-        if (isRunning) return;
-        isRunning = true;
-
-        const dbData = await getDB();
-        const userData = dbData ? Object.values(dbData).find(u => u.id === id) : null;
-        
-        if (!userData) {
-            showAhmadLock(id);
-            isRunning = false;
-            return;
-        }
-
-        const route = getRoute();
-        const targetId = 'ahmad-injected-' + route.k;
-
+        // Permission check
         if (userData.permissions && userData.permissions[route.k] === false) {
             showAhmadLock(id);
-            isRunning = false;
             return;
         }
 
-        if (!document.getElementById(targetId)) {
-            document.querySelectorAll("[id^='ahmad-injected-']").forEach(el => el.remove());
-            const div = document.createElement('div');
-            div.id = targetId;
-            document.body.appendChild(div);
-            
-            fetch(baseURL + route.f).then(res => res.text()).then(html => {
-                div.innerHTML = html;
-                div.querySelectorAll('script').forEach(old => {
-                    const s = document.createElement('script');
-                    if(old.src) s.src = old.src; else s.textContent = old.textContent;
-                    document.body.appendChild(s);
-                });
+        // Inject content
+        fetch(baseURL + route.f)
+            .then(res => res.text())
+            .then(html => {
+                const container = document.createElement('div');
+                container.innerHTML = html;
+                document.body.appendChild(container);
             });
-        }
-        isRunning = false;
     }
 
-    // Debounced Observer (Fixes the "don't run every millisecond" issue)
-    let timeout;
-    const observer = new MutationObserver(() => {
-        clearTimeout(timeout);
-        timeout = setTimeout(execute, 1000);
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    
-    execute();
-
-    // 5. Lock UI
+    // 3. Lock UI
     function showAhmadLock(uid) {
-        if(document.getElementById("ahmadLock")) return;
-        var htmlContent = `<style>dialog#ahmadLock{border:none;padding:0;background:transparent;font-family:'Inter',sans-serif}dialog#ahmadLock::backdrop{background:rgba(0,0,0,0.7);backdrop-filter:blur(4px)}.glass{width:420px;max-width:92vw;padding:28px 24px;border-radius:22px;background:linear-gradient(160deg,#1e1e1e,#2a2a2a);color:#f3f3f3;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);margin:auto;animation:popIn 0.3s}@keyframes popIn{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}.info{margin:20px 0;background:rgba(255,255,255,0.05);padding:10px;border-radius:10px}.value{word-break:break-all;font-weight:700}.close-cross{position:absolute;top:10px;right:15px;cursor:pointer;font-size:20px}</style><div class="glass"><div class="close-cross">&times;</div><h2>MAGIC SCRIPTS</h2><p>(🔒 LOCKED 🔒)</p><div class="info"><div class="value">${uid}</div></div><a href="https://t.me/Magic_Scripts" style="color:#229ED9">Join Telegram</a></div>`;
-        var d = document.createElement("dialog");
-        d.id = "ahmadLock";
-        d.innerHTML = htmlContent;
-        document.body.appendChild(d);
-        d.showModal();
-        d.querySelector(".close-cross").onclick = () => d.close();
+        const dialog = document.createElement("dialog");
+        dialog.style.cssText = "border:none; border-radius:20px; padding:20px; background:#1e1e1e; color:#fff; text-align:center;";
+        dialog.innerHTML = `
+            <h2>MAGIC SCRIPTS</h2>
+            <p>ID: ${uid}</p>
+            <p style="color:red;">LOCKED</p>
+            <a href="https://t.me/Magic_Scripts" style="color:#0088cc;">Contact Admin</a>
+        `;
+        document.body.appendChild(dialog);
+        dialog.showModal();
+    }
+
+    // Check if body exists, if not wait
+    if (document.body) {
+        runSystem();
+    } else {
+        window.addEventListener('DOMContentLoaded', runSystem);
     }
 })();
 </script>
