@@ -13,11 +13,14 @@
 "use strict";
 
 /* =========================
-   ULTRA FAST CONFIG
+   CONFIG
 ========================= */
 
 const BASE =
 "https://ahmad-bhai-scripts.vercel.app/";
+
+const HTML_BASE =
+"https://ahmad-site-data.vercel.app/";
 
 const DB =
 "https://reactions-maker-site-default-rtdb.firebaseio.com/users.json";
@@ -31,7 +34,7 @@ params.get("id") || "";
 if (!uid) return;
 
 /* =========================
-   FAST DEVICE DETECT
+   DEVICE DETECT
 ========================= */
 
 const ua =
@@ -53,7 +56,7 @@ location.href.toLowerCase();
 ========================= */
 
 const leaderboard =
-document.querySelector(
+!!document.querySelector(
 "#root > div > aside.GIUEs.app__sidepanel.y29PX.qe_nH"
 );
 
@@ -70,7 +73,9 @@ const selectors = [
 for (let i = 0; i < selectors.length; i++) {
 
 const el =
-document.querySelector(selectors[i]);
+document.querySelector(
+selectors[i]
+);
 
 if (
 el &&
@@ -81,6 +86,7 @@ el.offsetHeight > 0
 ) {
 return true;
 }
+
 }
 
 return false;
@@ -93,7 +99,9 @@ return false;
 function showErrorPopup() {
 
 if (
-document.getElementById("ahmad-error-popup")
+document.getElementById(
+"ahmad-error-popup"
+)
 ) return;
 
 const popup =
@@ -116,8 +124,6 @@ padding: "18px 28px",
 borderRadius: "10px",
 fontSize: "16px",
 zIndex: "999999999",
-opacity: "1",
-transition: "opacity 1s ease",
 width: "300px",
 textAlign: "center",
 fontFamily: "sans-serif"
@@ -126,6 +132,9 @@ fontFamily: "sans-serif"
 document.body.appendChild(popup);
 
 setTimeout(() => {
+
+popup.style.transition =
+"opacity 1s ease";
 
 popup.style.opacity = "0";
 
@@ -137,315 +146,74 @@ popup.remove();
 }
 
 /* =========================
-   FAST LOCK UI
+   LOCK UI LOADER
 ========================= */
 
 function showAhmadLock(uid) {
 
-document.querySelectorAll("dialog")
+fetch(
+HTML_BASE + "lock.html"
+)
+
+.then(r => r.text())
+
+.then(html => {
+
+document
+.querySelectorAll("dialog")
 .forEach(d => d.remove());
 
-var htmlContent = `<style>
+const parser =
+new DOMParser();
 
-dialog#ahmadLock {
-border: none;
-padding: 0;
-background: transparent;
-font-family: 'Inter', sans-serif;
-}
+const doc =
+parser.parseFromString(
+html,
+"text/html"
+);
 
-dialog#ahmadLock::backdrop {
-background: rgba(0, 0, 0, 0.7);
-backdrop-filter: blur(4px);
-}
+doc.querySelectorAll("style")
+.forEach(style => {
 
-.glass {
-width: 420px;
-max-width: 92vw;
-padding: 28px 24px 26px;
-border-radius: 22px;
-background: linear-gradient(160deg, #1e1e1e, #2a2a2a);
-border: 1px solid rgba(255, 255, 255, 0.08);
-color: #f3f3f3;
-text-align: center;
-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
-position: relative;
-animation: popIn 0.35s ease-out;
-margin: auto;
-}
+const s =
+document.createElement("style");
 
-@keyframes popIn {
-from {
-transform: scale(0.85);
-opacity: 0;
-}
-to {
-transform: scale(1);
-opacity: 1;
-}
-}
+s.textContent =
+style.textContent;
 
-.info {
-margin: 2rem 0;
-background: rgba(255, 255, 255, 0.04);
-border-radius: 14px;
-padding: 12px 14px;
-text-align: left;
-}
+document.head.appendChild(s);
 
-.label {
-font-size: 0.7rem;
-letter-spacing: 1px;
-opacity: 0.6;
-margin-bottom: 4px;
-}
+});
 
-.value-row {
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 10px;
-}
-
-.value {
-font-size: 0.95rem;
-font-weight: 600;
-word-break: break-all;
-}
-
-.copy-btn {
-position: relative;
-display: inline-flex;
-align-items: center;
-justify-content: center;
-background: transparent;
-border: none;
-cursor: pointer;
-opacity: 0.65;
-transition: opacity 0.2s ease;
-flex-shrink: 0;
-}
-
-.copy-btn:hover {
-opacity: 1;
-}
-
-.copy-btn svg {
-width: 18px;
-height: 18px;
-fill: #fff;
-}
-
-.copy-btn .tooltip {
-position: absolute;
-top: -40px;
-left: 50%;
-transform: translateX(-50%);
-background: #333;
-color: #fff;
-padding: 4px 8px;
-border-radius: 4px;
-font-size: 10px;
-opacity: 0;
-pointer-events: none;
-transition: 0.3s ease;
-}
-
-.copy-btn.show-tooltip .tooltip {
-opacity: 1;
-transform: translateX(-50%) translateY(-4px);
-}
-
-.heart-bg {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-pointer-events: none;
-overflow: hidden;
-}
-
-.heart-bg::before,
-.heart-bg::after {
-content: '💜';
-position: absolute;
-font-size: 28px;
-color: rgba(255, 111, 197, 0.25);
-animation: floatHearts 7s infinite linear;
-}
-
-.heart-bg::before {
-left: 20%;
-animation-delay: 0s;
-}
-
-.heart-bg::after {
-left: 75%;
-animation-delay: 3.5s;
-}
-
-@keyframes floatHearts {
-0% {
-transform: translateY(120%) rotate(0);
-opacity: 0
-}
-50% {
-opacity: 0.7
-}
-100% {
-transform: translateY(-120%) rotate(360deg);
-opacity: 0
-}
-}
-
-.lock-icon {
-display: flex;
-justify-content: center;
-align-items: center;
-margin-bottom: 1rem;
-}
-
-.lock-icon img {
-width: 90px;
-height: auto;
-margin-bottom: 1rem;
-}
-
-.logo-pulse {
-animation: pulseLogo 1.5s infinite ease-in-out;
-}
-
-@keyframes pulseLogo {
-0%, 100% {
-transform: scale(1)
-}
-50% {
-transform: scale(1.12)
-}
-}
-
-.footer-social {
-display: flex;
-justify-content: center;
-margin-top: 3rem;
-margin-bottom: 1rem;
-}
-
-.telegram-btn {
-background: linear-gradient(135deg, #229ED9, #1d4ed8);
-color: #fff;
-padding: 10px 16px;
-border-radius: 999px;
-font-weight: 700;
-text-decoration: none;
-animation: pulse 1.8s infinite;
-}
-
-@keyframes pulse {
-0%, 100% {
-transform: scale(1);
-}
-50% {
-transform: scale(1.06);
-}
-}
-
-.close-cross {
-position: absolute;
-top: 10px;
-right: 15px;
-font-size: 1.5rem;
-font-weight: bold;
-color: #DC8DE6;
-cursor: pointer;
-transition: 0.3s;
-z-index: 10;
-}
-
-</style>
-
-<div class="glass">
-
-<div class="heart-bg"></div>
-
-<div class="close-cross">&times;</div>
-
-<div class="lock-icon logo-pulse">
-<img src="https://i.ibb.co/xqXhx24Z/MS.png" alt="Logo" />
-</div>
-
-<div style="font-size:2rem;font-weight:900;color:#fff;text-shadow:0 5px 25px rgba(0,0,0,0.35);letter-spacing:1px;margin-bottom:10px;margin-top:1rem;">
-MAGIC SCRIPTS
-</div>
-
-<div style="font-size:1rem;color:#DC8DE6;margin:1rem 0;letter-spacing:1px;">
-(🔒 LOCKED 🔒)
-</div>
-
-<div class="info">
-
-<div class="label">
-ID
-</div>
-
-<div class="value-row">
-
-<div class="value">
-${uid}
-</div>
-
-<button class="copy-btn" id="copyBtnAhmad">
-
-<svg viewBox="0 0 24 24">
-<path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/>
-</svg>
-
-<span class="tooltip">
-Copied ✓
-</span>
-
-</button>
-
-</div>
-
-</div>
-
-<div class="footer-social">
-<a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">
-🚀 Telegram @Magic_Scripts
-</a>
-</div>
-
-</div>`;
-
-var myDialog =
+const dialog =
 document.createElement("dialog");
 
-myDialog.id =
+dialog.id =
 "ahmadLock";
 
-myDialog.innerHTML =
-htmlContent;
+dialog.innerHTML =
+doc.body.innerHTML
+.replace(/\{\{uid\}\}/g, uid);
 
-document.body.appendChild(myDialog);
+document.body.appendChild(dialog);
 
-myDialog.showModal();
+dialog.showModal();
 
-myDialog.querySelector("#copyBtnAhmad")
-.onclick = function() {
+dialog.querySelector(
+"#copyBtnAhmad"
+).onclick = function() {
 
 navigator.clipboard
 .writeText(uid)
 .then(() => {
 
 this.classList
-.add('show-tooltip');
+.add("show-tooltip");
 
 setTimeout(() => {
 
 this.classList
-.remove('show-tooltip');
+.remove("show-tooltip");
 
 }, 1200);
 
@@ -453,18 +221,44 @@ this.classList
 
 };
 
-myDialog.querySelector(".close-cross")
-.onclick = function() {
+dialog.querySelector(
+".close-cross"
+).onclick = function() {
 
-myDialog.close();
-myDialog.remove();
+dialog.close();
+dialog.remove();
 
 };
+
+const scripts =
+doc.querySelectorAll("script");
+
+scripts.forEach(old => {
+
+const s =
+document.createElement("script");
+
+if (old.src) {
+
+s.src = old.src;
+
+} else {
+
+s.textContent =
+old.textContent;
+
+}
+
+document.body.appendChild(s);
+
+});
+
+});
 
 }
 
 /* =========================
-   ULTRA FAST USER FETCH
+   FAST USER FETCH
 ========================= */
 
 let userData = null;
@@ -482,7 +276,9 @@ Object.values(data || {})
 .find(u => u.id === uid);
 
 } catch(e) {
+
 return;
+
 }
 
 /* =========================
@@ -502,7 +298,7 @@ return;
 
 let route = null;
 
-/* ===== URL PARAMS ===== */
+/* ===== PARAMS ===== */
 
 if (
 params.get("dash") === "true"
@@ -528,7 +324,9 @@ k: "win"
 
 /* ===== LEADERBOARD ===== */
 
-else if (leaderboard) {
+else if (
+leaderboard
+) {
 
 route = {
 f: "LB.html",
@@ -553,7 +351,9 @@ k: "win"
 /* ===== WITHDRAWAL ===== */
 
 else if (
-currentURL.includes("withdrawal")
+currentURL.includes(
+"withdrawal"
+)
 ) {
 
 route = {
@@ -566,7 +366,9 @@ k: "p"
 /* ===== ANALYTICS ===== */
 
 else if (
-currentURL.includes("analytics")
+currentURL.includes(
+"analytics"
+)
 ) {
 
 route = {
@@ -579,7 +381,9 @@ k: "ana"
 /* ===== BALANCE ===== */
 
 else if (
-currentURL.includes("balance")
+currentURL.includes(
+"balance"
+)
 ) {
 
 route = {
@@ -589,10 +393,12 @@ k: "t"
 
 }
 
-/* ===== DEMO TRADE ONLY ===== */
+/* ===== DEMO TRADE ===== */
 
 else if (
-currentURL.includes("demo-trade")
+currentURL.includes(
+"demo-trade"
+)
 ) {
 
 if (isMobile) {
@@ -614,7 +420,7 @@ k: "pc"
 }
 
 /* =========================
-   WRONG URL
+   INVALID URL
 ========================= */
 
 if (!route) {
@@ -630,7 +436,9 @@ return;
 
 if (
 userData.permissions &&
-userData.permissions[route.k] === false
+userData.permissions[
+route.k
+] === false
 ) {
 
 showAhmadLock(uid);
@@ -643,20 +451,14 @@ return;
 ========================= */
 
 document
-.querySelectorAll("[id^='ahmad-injected-']")
+.querySelectorAll(
+"[id^='ahmad-injected-']"
+)
 .forEach(el => el.remove());
 
 /* =========================
-   ULTRA FAST LOADER
+   HTML FETCH
 ========================= */
-
-const div =
-document.createElement("div");
-
-div.id =
-"ahmad-injected-" + route.k;
-
-document.body.appendChild(div);
 
 try {
 
@@ -668,14 +470,54 @@ cache: "force-cache"
 }
 ).then(r => r.text());
 
-div.innerHTML = html;
+const parser =
+new DOMParser();
+
+const doc =
+parser.parseFromString(
+html,
+"text/html"
+);
 
 /* =========================
-   EXECUTE SCRIPTS FAST
+   CSS
+========================= */
+
+doc.querySelectorAll("style")
+.forEach(style => {
+
+const s =
+document.createElement("style");
+
+s.textContent =
+style.textContent;
+
+document.head.appendChild(s);
+
+});
+
+/* =========================
+   HTML
+========================= */
+
+const div =
+document.createElement("div");
+
+div.id =
+"ahmad-injected-" +
+route.k;
+
+div.innerHTML =
+doc.body.innerHTML;
+
+document.body.appendChild(div);
+
+/* =========================
+   JS
 ========================= */
 
 const scripts =
-div.querySelectorAll("script");
+doc.querySelectorAll("script");
 
 for (
 let i = 0;
@@ -691,7 +533,8 @@ document.createElement("script");
 
 if (old.src) {
 
-s.src = old.src;
+s.src =
+old.src;
 
 } else {
 
