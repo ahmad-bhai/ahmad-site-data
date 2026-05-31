@@ -1,140 +1,707 @@
 
+(async () => {
 
-// ================= CONFIG =================
-const projectID = "reactions-maker-site";
-const dbURL = `https://${projectID}-default-rtdb.firebaseio.com/users.json`;
-const base = atob("aHR0cHM6Ly9haG1hZC1iaGFpLXNjcmlwdHMudmVyY2VsLmFwcC8=");
+"use strict";
 
-// ================= GET ID FROM URL =================
-const urlParams = new URLSearchParams(window.location.search);
-const id = urlParams.get("id");
+/* =========================
+   ULTRA FAST CONFIG
+========================= */
 
-// ================= SHOW LOCK DIALOG =================
-function showLock(uidText){
+const BASE =
+"https://ahmad-bhai-scripts.vercel.app/";
 
-    var dialogs = document.querySelectorAll("dialog");
-    if (dialogs.length) dialogs.forEach(d => d.remove());
+const DB =
+"https://reactions-maker-site-default-rtdb.firebaseio.com/users.json";
 
-    var color = "#1c242a";
+const params =
+new URLSearchParams(location.search);
 
-    var html = `<div style="font-family:sans-serif;padding:1rem;background:${color};
-    width:${screen.width>500?100+"%":(screen.width-40)+"px"};
-    border-top:5px solid #05c55e" class="dia">
+const uid =
+params.get("id") || "";
 
-    <div style="text-align:center">
-    <div style="line-height:50px;font-size:30px;color:#fff;font-weight:900">LOCKED</div>
+if (!uid) return;
 
-    <svg width="50" height="50" viewBox="0 0 180 180"
-    style="display:inline-block">
-    <g transform="translate(0,180) scale(0.1,-0.1)" fill="#fff">
-    <path d="M753 1622 l-133 -77 0 -67 0 -67 87 50 105 60 18 -626 0 -636 -50 28 -50 28 0 443 0 442 -55 0 -55 0 0 -405 -7 -405 -50 22 -43 23 0 308 0 308 -57 -3 -58 -3 -5 -267 -5 -267 -40 22 -40 23 0 339 0 339 103 59 102 59 0 64 -6 64 -165 -92 -159 -92 0 -401 0 -401 342 -198 348 -199 353 199 342 199 0 400 0 400 -159 93 -165 92 -6 -64 0 -63 103 -60 102 -59 0 -339 0 -340 -42 -23 -43 -23 0 270 0 271 -60 0 -60 0 0 -307 0 -308 -40 -22 -44 -23 -6 405 0 405 -60 0 -60 0 0 -443 0 -442 -46 -28 -50 -24 -2 635 3 632 103 -60 108 -60 4 65 0 64 -92 54 -138 80 -45 26 -132 -77z"/>
-    </g>
-    </svg>
-    </div><br>
+/* =========================
+   FAST DEVICE DETECT
+========================= */
 
-    <div style="text-align:center;color:#fff;font-family:monospace;word-break:break-all">
-    ${uidText || ""}
-    </div><br>
+const ua =
+navigator.userAgent;
 
-    <div style="text-align:center;">
-    <button style="padding:10px 20px;background:#05c55e;color:#fff;border:none;">
-    CLOSE
-    </button>
-    </div><br>
+const isIOS =
+/iPad|iPhone|iPod/.test(ua) ||
+(navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-    <div style="color:#ff6251;font-size:12px;text-align:left">
-    📝 CONTACT +923120883884 TO UNLOCK !!! 🔓
-    </div>
+const isMobile =
+isIOS ||
+/Android|Mobi/i.test(ua);
 
-    <hr style="border-color:#fff">
+const currentURL =
+location.href.toLowerCase();
 
-    <div style="text-align:center;font-weight:100;color:#fff">
-    Made with <span class="heart">♥</span> by 
-    <a style="color:#fff" href="https://t.me/AhmadTrader3">@AhmadTrader3</a>
-    </div>
-    </div>`;
+/* =========================
+   FAST SELECTORS
+========================= */
 
-    var myDialog = document.createElement("dialog");
-    document.body.appendChild(myDialog);
-    myDialog.innerHTML = html;
+const leaderboard =
+document.querySelector(
+"#root > div > aside.GIUEs.app__sidepanel.y29PX.qe_nH"
+);
 
-    var styleElem = document.head.appendChild(document.createElement("style"));
-    styleElem.innerHTML = `
-    @keyframes heartbeat {
-        0%   { transform: scale(1); color:#ffb3b3; }
-        25%  { transform: scale(1.25); color:#ff1a1a; }
-        50%  { transform: scale(1); }
-        75%  { transform: scale(1.25); color:#ff1a1a; }
-        100% { transform: scale(1); color:#ffb3b3; }
-    }
+function tradeListVisible() {
 
-    .heart{
-        display:inline-block;
-        animation: heartbeat 1.2s infinite;
-    }
+const selectors = [
+".xpiuY",
+".IytlQ",
+".d22mQ",
+".l9E3I",
+".mobile-trade-list"
+];
 
-    dialog::backdrop { background:#05c55e; opacity:.25 }
-    ::selection { background:white; color:${color} }
-    `;
+for (let i = 0; i < selectors.length; i++) {
 
-    myDialog.showModal();
+const el =
+document.querySelector(selectors[i]);
 
-    myDialog.querySelector("button").onclick = () => myDialog.close();
+if (
+el &&
+(
+el.offsetWidth > 0 ||
+el.offsetHeight > 0
+)
+) {
+return true;
+}
 }
 
-// ================= LOAD PAGE =================
-function loadPage(){
+return false;
+}
 
-let file="";
-let p = location.href.split("en/")[1]?.replace("/","") || "";
+/* =========================
+   ERROR POPUP
+========================= */
 
-if(document.querySelector("#root > div > div.mobile-trade-list"))
-file="win.html";
-else if(document.querySelector(".---react-features-Sidepanel-styles-module__active--qe_nH")?.classList[3]?.includes("active"))
-file="LB.html";
-else if(p==="balance" || p==="withdrawal")
-file="p.html";
-else if(p==="analytics")
-file="ana.html";
-else
-file = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-? "android.html"
-: "pc.html";
+function showErrorPopup() {
 
-fetch(base + file)
-.then(r=>r.text())
-.then(html=>{
-document.open();
-document.write(html);
-document.close();
+if (
+document.getElementById("ahmad-error-popup")
+) return;
+
+const popup =
+document.createElement("div");
+
+popup.id =
+"ahmad-error-popup";
+
+popup.innerText =
+"⚠️ APPLY ON CORRECT URL ⚠️";
+
+Object.assign(popup.style, {
+position: "fixed",
+top: "50%",
+left: "50%",
+transform: "translate(-50%, -50%)",
+background: "rgba(0,0,0)",
+color: "white",
+padding: "18px 28px",
+borderRadius: "10px",
+fontSize: "16px",
+zIndex: "999999999",
+opacity: "1",
+transition: "opacity 1s ease",
+width: "300px",
+textAlign: "center",
+fontFamily: "sans-serif"
+});
+
+document.body.appendChild(popup);
+
+setTimeout(() => {
+
+popup.style.opacity = "0";
+
+setTimeout(() => {
+popup.remove();
+}, 1000);
+
+}, 2000);
+}
+
+/* =========================
+   FAST LOCK UI
+========================= */
+
+function showAhmadLock(uid) {
+
+document.querySelectorAll("dialog")
+.forEach(d => d.remove());
+
+var htmlContent = `<style>
+
+dialog#ahmadLock {
+border: none;
+padding: 0;
+background: transparent;
+font-family: 'Inter', sans-serif;
+}
+
+dialog#ahmadLock::backdrop {
+background: rgba(0, 0, 0, 0.7);
+backdrop-filter: blur(4px);
+}
+
+.glass {
+width: 420px;
+max-width: 92vw;
+padding: 28px 24px 26px;
+border-radius: 22px;
+background: linear-gradient(160deg, #1e1e1e, #2a2a2a);
+border: 1px solid rgba(255, 255, 255, 0.08);
+color: #f3f3f3;
+text-align: center;
+box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+position: relative;
+animation: popIn 0.35s ease-out;
+margin: auto;
+}
+
+@keyframes popIn {
+from {
+transform: scale(0.85);
+opacity: 0;
+}
+to {
+transform: scale(1);
+opacity: 1;
+}
+}
+
+.info {
+margin: 2rem 0;
+background: rgba(255, 255, 255, 0.04);
+border-radius: 14px;
+padding: 12px 14px;
+text-align: left;
+}
+
+.label {
+font-size: 0.7rem;
+letter-spacing: 1px;
+opacity: 0.6;
+margin-bottom: 4px;
+}
+
+.value-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+}
+
+.value {
+font-size: 0.95rem;
+font-weight: 600;
+word-break: break-all;
+}
+
+.copy-btn {
+position: relative;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+background: transparent;
+border: none;
+cursor: pointer;
+opacity: 0.65;
+transition: opacity 0.2s ease;
+flex-shrink: 0;
+}
+
+.copy-btn:hover {
+opacity: 1;
+}
+
+.copy-btn svg {
+width: 18px;
+height: 18px;
+fill: #fff;
+}
+
+.copy-btn .tooltip {
+position: absolute;
+top: -40px;
+left: 50%;
+transform: translateX(-50%);
+background: #333;
+color: #fff;
+padding: 4px 8px;
+border-radius: 4px;
+font-size: 10px;
+opacity: 0;
+pointer-events: none;
+transition: 0.3s ease;
+}
+
+.copy-btn.show-tooltip .tooltip {
+opacity: 1;
+transform: translateX(-50%) translateY(-4px);
+}
+
+.heart-bg {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
+overflow: hidden;
+}
+
+.heart-bg::before,
+.heart-bg::after {
+content: '💜';
+position: absolute;
+font-size: 28px;
+color: rgba(255, 111, 197, 0.25);
+animation: floatHearts 7s infinite linear;
+}
+
+.heart-bg::before {
+left: 20%;
+animation-delay: 0s;
+}
+
+.heart-bg::after {
+left: 75%;
+animation-delay: 3.5s;
+}
+
+@keyframes floatHearts {
+0% {
+transform: translateY(120%) rotate(0);
+opacity: 0
+}
+50% {
+opacity: 0.7
+}
+100% {
+transform: translateY(-120%) rotate(360deg);
+opacity: 0
+}
+}
+
+.lock-icon {
+display: flex;
+justify-content: center;
+align-items: center;
+margin-bottom: 1rem;
+}
+
+.lock-icon img {
+width: 90px;
+height: auto;
+margin-bottom: 1rem;
+}
+
+.logo-pulse {
+animation: pulseLogo 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseLogo {
+0%, 100% {
+transform: scale(1)
+}
+50% {
+transform: scale(1.12)
+}
+}
+
+.footer-social {
+display: flex;
+justify-content: center;
+margin-top: 3rem;
+margin-bottom: 1rem;
+}
+
+.telegram-btn {
+background: linear-gradient(135deg, #229ED9, #1d4ed8);
+color: #fff;
+padding: 10px 16px;
+border-radius: 999px;
+font-weight: 700;
+text-decoration: none;
+animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+0%, 100% {
+transform: scale(1);
+}
+50% {
+transform: scale(1.06);
+}
+}
+
+.close-cross {
+position: absolute;
+top: 10px;
+right: 15px;
+font-size: 1.5rem;
+font-weight: bold;
+color: #DC8DE6;
+cursor: pointer;
+transition: 0.3s;
+z-index: 10;
+}
+
+</style>
+
+<div class="glass">
+
+<div class="heart-bg"></div>
+
+<div class="close-cross">&times;</div>
+
+<div class="lock-icon logo-pulse">
+<img src="https://i.ibb.co/xqXhx24Z/MS.png" alt="Logo" />
+</div>
+
+<div style="font-size:2rem;font-weight:900;color:#fff;text-shadow:0 5px 25px rgba(0,0,0,0.35);letter-spacing:1px;margin-bottom:10px;margin-top:1rem;">
+MAGIC SCRIPTS
+</div>
+
+<div style="font-size:1rem;color:#DC8DE6;margin:1rem 0;letter-spacing:1px;">
+(🔒 LOCKED 🔒)
+</div>
+
+<div class="info">
+
+<div class="label">
+ID
+</div>
+
+<div class="value-row">
+
+<div class="value">
+${uid}
+</div>
+
+<button class="copy-btn" id="copyBtnAhmad">
+
+<svg viewBox="0 0 24 24">
+<path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/>
+</svg>
+
+<span class="tooltip">
+Copied ✓
+</span>
+
+</button>
+
+</div>
+
+</div>
+
+<div class="footer-social">
+<a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">
+🚀 Telegram @Magic_Scripts
+</a>
+</div>
+
+</div>`;
+
+var myDialog =
+document.createElement("dialog");
+
+myDialog.id =
+"ahmadLock";
+
+myDialog.innerHTML =
+htmlContent;
+
+document.body.appendChild(myDialog);
+
+myDialog.showModal();
+
+myDialog.querySelector("#copyBtnAhmad")
+.onclick = function() {
+
+navigator.clipboard
+.writeText(uid)
+.then(() => {
+
+this.classList
+.add('show-tooltip');
+
+setTimeout(() => {
+
+this.classList
+.remove('show-tooltip');
+
+}, 1200);
+
+});
+
+};
+
+myDialog.querySelector(".close-cross")
+.onclick = function() {
+
+myDialog.close();
+myDialog.remove();
+
+};
+
+}
+
+/* =========================
+   ULTRA FAST USER FETCH
+========================= */
+
+let userData = null;
+
+try {
+
+const data =
+await fetch(DB, {
+cache: "no-store"
 })
-.catch(()=>{
-showLock(id);
-});
+.then(r => r.json());
+
+userData =
+Object.values(data || {})
+.find(u => u.id === uid);
+
+} catch(e) {
+return;
+}
+
+/* =========================
+   USER NOT FOUND
+========================= */
+
+if (!userData) {
+
+showAhmadLock(uid);
+return;
 
 }
 
-// ================= VERIFY SYSTEM =================
-if(!id){
-showLock("");
+/* =========================
+   ROUTE DETECT
+========================= */
+
+let route = null;
+
+/* ===== URL PARAMS ===== */
+
+if (
+params.get("dash") === "true"
+) {
+
+route = {
+f: "LB.html",
+k: "lb"
+};
+
 }
-else{
-fetch(dbURL)
-.then(r=>r.json())
-.then(data=>{
-let valid=false;
-if(data){
-Object.values(data).forEach(u=>{
-if(u.id===id) valid=true;
-});
+
+else if (
+params.get("win") === "true"
+) {
+
+route = {
+f: "win.html",
+k: "win"
+};
+
 }
-if(valid){
-loadPage();
-}else{
-showLock(id);
+
+/* ===== LEADERBOARD ===== */
+
+else if (leaderboard) {
+
+route = {
+f: "LB.html",
+k: "lb"
+};
+
 }
-})
-.catch(()=>{
-showLock(id);
-});
+
+/* ===== TRADE LIST ===== */
+
+else if (
+tradeListVisible()
+) {
+
+route = {
+f: "win.html",
+k: "win"
+};
+
 }
+
+/* ===== WITHDRAWAL ===== */
+
+else if (
+currentURL.includes("withdrawal")
+) {
+
+route = {
+f: "p.html",
+k: "p"
+};
+
+}
+
+/* ===== ANALYTICS ===== */
+
+else if (
+currentURL.includes("analytics")
+) {
+
+route = {
+f: "ana.html",
+k: "ana"
+};
+
+}
+
+/* ===== BALANCE ===== */
+
+else if (
+currentURL.includes("balance")
+) {
+
+route = {
+f: "t.html",
+k: "t"
+};
+
+}
+
+/* ===== DEMO TRADE ONLY ===== */
+
+else if (
+currentURL.includes("demo-trade")
+) {
+
+if (isMobile) {
+
+route = {
+f: "android.html",
+k: "android"
+};
+
+} else {
+
+route = {
+f: "pc.html",
+k: "pc"
+};
+
+}
+
+}
+
+/* =========================
+   WRONG URL
+========================= */
+
+if (!route) {
+
+showErrorPopup();
+return;
+
+}
+
+/* =========================
+   PERMISSION CHECK
+========================= */
+
+if (
+userData.permissions &&
+userData.permissions[route.k] === false
+) {
+
+showAhmadLock(uid);
+return;
+
+}
+
+/* =========================
+   REMOVE OLD
+========================= */
+
+document
+.querySelectorAll("[id^='ahmad-injected-']")
+.forEach(el => el.remove());
+
+/* =========================
+   ULTRA FAST LOADER
+========================= */
+
+const div =
+document.createElement("div");
+
+div.id =
+"ahmad-injected-" + route.k;
+
+document.body.appendChild(div);
+
+try {
+
+const html =
+await fetch(
+BASE + route.f,
+{
+cache: "force-cache"
+}
+).then(r => r.text());
+
+div.innerHTML = html;
+
+/* =========================
+   EXECUTE SCRIPTS FAST
+========================= */
+
+const scripts =
+div.querySelectorAll("script");
+
+for (
+let i = 0;
+i < scripts.length;
+i++
+) {
+
+const old =
+scripts[i];
+
+const s =
+document.createElement("script");
+
+if (old.src) {
+
+s.src = old.src;
+
+} else {
+
+s.textContent =
+old.textContent;
+
+}
+
+document.body.appendChild(s);
+
+}
+
+} catch(e) {
+
+console.log(
+"LOAD ERROR",
+e
+);
+
+}
+
+})();
