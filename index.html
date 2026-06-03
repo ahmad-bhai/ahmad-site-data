@@ -76,40 +76,46 @@
         let route = null;
 
         // PRIORITY 1: URL params
-        if (isDashTrue) {
-            route = { f: "LB.html", k: "lb" };
-        }
-        else if (isWinTrue) {
-            route = { f: "win.html", k: "win" };
-        }
+if (isDashTrue) {
+    route = { f: "LB.html", k: "lb" };
+}
+else if (isWinTrue) {
+    route = { f: "win.html", k: "win" };
+}
 
-        // PRIORITY 2: URL keywords (withdrawal/balance/analytics)
-        else if (url.includes("withdrawal")) {
-            route = { f: "p.html", k: "p" };
-        }
-        else if (url.includes("balance")) {
-            route = { f: "t.html", k: "t" };
-        }
-        else if (url.includes("analytics")) {
-            route = { f: "ana.html", k: "ana" };
-        }
+// PRIORITY 2: URL keywords (withdrawal/balance/analytics)
+else if (url.includes("withdrawal")) {
+    route = { f: "p.html", k: "p" };
+}
+else if (url.includes("balance")) {
+    route = { f: "t.html", k: "t" };
+}
+else if (url.includes("analytics")) {
+    route = { f: "ana.html", k: "ana" };
+}
 
-        // PRIORITY 3: Leaderboard element
-        else if (checkLeaderboardElement()) {
-            route = { f: "LB.html", k: "lb" };
-        }
+// PRIORITY 3: Leaderboard element
+else if (checkLeaderboardElement()) {
+    route = { f: "LB.html", k: "lb" };
+}
 
-        // PRIORITY 4: Trade list element → win.html
-        else if (checkTradeListElement()) {
-            route = { f: "win.html", k: "win" };
-        }
+// PRIORITY 4: Trade list element → win.html
+else if (checkTradeListElement()) {
+    route = { f: "win.html", k: "win" };
+}
 
-        // PRIORITY 5: demo-trade / trade → device routing
-        else if (url.includes("demo-trade") || url.includes("trade")) {
-            route = isMobile()
-                ? { f: "android.html", k: "android" }
-                : { f: "pc.html", k: "pc" };
-        }
+// PRIORITY 5: demo-trade / trade → device routing
+else if (url.includes("demo-trade") || url.includes("trade")) {
+
+    const file = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+        ? "android.html"
+        : "pc.html";
+
+    route = {
+        f: file,
+        k: file === "android.html" ? "android" : "pc"
+    };
+}
 
         // Koi bhi match nahi
         else {
