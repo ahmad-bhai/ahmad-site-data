@@ -80,9 +80,9 @@
     }
 
     function checkTradeListElement() {
-        const classes = ['.xpiuY', '.IytlQ', '.d22mQ', '.l9E3I', '.mobile-trade-list'];
-        return classes.some(c => { const el = document.querySelector(c); return isVisible(el); });
+    return !!document.querySelector("div[data-index]");
     }
+    
 
     // ─── Device detection ────────────────────────────────────────────────────
     function isMobile() {
