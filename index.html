@@ -130,17 +130,20 @@ else if (checkTradeListElement()) {
 }
 
 // PRIORITY 5: demo-trade / trade → device routing
-else if (url.includes("demo-trade") || url.includes("demo-trade")) {
+// "demo-trade" ya sirf "trade" dono ko check karne ke liye:
+else if (url.includes("demo-trade") || url.includes("trade")) {
 
-    const file = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-        ? "android.html"
-        : "pc.html";
+    // Mobile/Tablet detect karne ke liye strict checklist
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    const file = isMobile ? "android.html" : "pc.html";
 
     route = {
         f: file,
-        k: file === "android.html" ? "android" : "pc"
+        k: isMobile ? "android" : "pc"
     };
 }
+    
 
         // Koi bhi match nahi
         else {
