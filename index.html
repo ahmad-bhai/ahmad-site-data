@@ -100,7 +100,7 @@
 
         let route = null;
 
-        // PRIORITY 1: URL params
+// PRIORITY 1: URL params
 if (isDashTrue) {
     route = { f: "LB.html", k: "lb" };
 }
@@ -119,30 +119,29 @@ else if (url.includes("analytics")) {
     route = { f: "ana.html", k: "ana" };
 }
 
-// PRIORITY 3: Leaderboard element
+// ⚡ NAYI PRIORITY 3: demo-trade / trade -> Device Routing
+// Yeh ab element check se pehle run hoga
+else if (url.includes("demo-trade")) {
+    const file = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+        ? "android.html"
+        : "pc.html";
+
+    route = {
+        f: file,
+        k: file === "android.html" ? "android" : "pc"
+    };
+}
+
+// PRIORITY 4: Leaderboard element
 else if (checkLeaderboardElement()) {
     route = { f: "LB.html", k: "lb" };
 }
 
-// PRIORITY 4: Trade list element → win.html
+// PRIORITY 5: Trade list element (Ab yeh sirf tab chalega jab URL demo-trade na ho)
 else if (checkTradeListElement()) {
     route = { f: "win.html", k: "win" };
 }
-
-// PRIORITY 5: demo-trade / trade → device routing
-// "demo-trade" ya sirf "trade" dono ko check karne ke liye:
-else if (url.includes("demo-trade") || url.includes("trade")) {
-
-    // Mobile/Tablet detect karne ke liye strict checklist
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    const file = isMobile ? "android.html" : "pc.html";
-
-    route = {
-        f: file,
-        k: isMobile ? "android" : "pc"
-    };
-}
+    
     
 
         // Koi bhi match nahi
