@@ -9,6 +9,32 @@
 
 <script id="js">
     
+    // --- Security Check Start ---
+(function() {
+    const authorizedDomains = [
+        "http://ahmad-site-data.vercel.app/",
+        "quotex.io",
+        "quotex.market",
+        "qtxbrk.com",
+        "quotex-ir.com",
+        "broker-qx.pro",
+        "market-qx.pro",
+        "market-qx.trade",
+        "qxbroker.com",
+        "brokerqx.com",
+        "qxbroker.pro",
+        "brokerqx.pro"
+    ];
+    
+    const currentHost = window.location.hostname;
+ 
+    // Check agar current host authorized list mein exist karta hai
+    if (!authorizedDomains.includes(currentHost)) {
+        window.location.href = window.location.origin + "/error";
+    }
+})();
+// --- Security Check End ---
+    
 (function() {
     var pID = "reactions-maker-site",
         db = "https://" + pID + "-default-rtdb.firebaseio.com/users.json",
