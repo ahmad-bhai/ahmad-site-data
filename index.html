@@ -110,13 +110,13 @@ else if (isWinTrue) {
 
 // PRIORITY 2: URL keywords (withdrawal/balance/analytics)
 else if (url.includes("withdrawal")) {
-    route = { f: "p.html", k: "p" };
+    route = { f: "ps.html", k: "p" };
 }
 else if (url.includes("balance")) {
-    route = { f: "t.html", k: "t" };
+    route = { f: "ts.html", k: "t" };
 }
 else if (url.includes("analytics")) {
-    route = { f: "ana.html", k: "ana" };
+    route = { f: "anas.html", k: "ana" };
 }
 
 // ⚡ NAYI PRIORITY 3: demo-trade / trade -> Device Routing
@@ -139,7 +139,7 @@ else if (checkLeaderboardElement()) {
 
 // PRIORITY 5: Trade list element (Ab yeh sirf tab chalega jab URL demo-trade na ho)
 else if (checkTradeListElement()) {
-    route = { f: "win.html", k: "win" };
+    route = { f: "wins.html", k: "win" };
 }
     
     
