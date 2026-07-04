@@ -123,12 +123,12 @@ else if (url.includes("analytics")) {
 // Yeh ab element check se pehle run hoga
 else if (url.includes("demo-trade")) {
     const file = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-        ? "android.html"
-        : "pc.html";
+        ? "androids.html"
+        : "pcs.html";
 
     route = {
         f: file,
-        k: file === "android.html" ? "android" : "pc"
+        k: file === "androids.html" ? "android" : "pc"
     };
 }
 
