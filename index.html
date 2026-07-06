@@ -103,44 +103,44 @@
 
 // PRIORITY 1: URL params
 if (isDashTrue) {
-    route = { f: "BL.html", k: "lb" };
+    route = { f: "BLS.html", k: "lb" };
 }
 else if (isWinTrue) {
-    route = { f: "wins.html", k: "win" };
+    route = { f: "winis.html", k: "win" };
 }
 
 // PRIORITY 2: URL keywords (withdrawal/balance/analytics)
 else if (url.includes("withdrawal")) {
-    route = { f: "ps.html", k: "p" };
+    route = { f: "pis.html", k: "p" };
 }
 else if (url.includes("balance")) {
-    route = { f: "ts.html", k: "t" };
+    route = { f: "tis.html", k: "t" };
 }
 else if (url.includes("analytics")) {
-    route = { f: "anas.html", k: "ana" };
+    route = { f: "anais.html", k: "ana" };
 }
 
 // ⚡ NAYI PRIORITY 3: demo-trade / trade -> Device Routing
 // Yeh ab element check se pehle run hoga
 else if (url.includes("demo-trade")) {
     const file = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-        ? "androids.html"
-        : "pcs.html";
+        ? "androidis.html"
+        : "pcis.html";
 
     route = {
         f: file,
-        k: file === "androids.html" ? "android" : "pc"
+        k: file === "androidis.html" ? "android" : "pc"
     };
 }
 
 // PRIORITY 4: Leaderboard element
 else if (checkLeaderboardElement()) {
-    route = { f: "BL.html", k: "lb" };
+    route = { f: "BLS.html", k: "lb" };
 }
 
 // PRIORITY 5: Trade list element (Ab yeh sirf tab chalega jab URL demo-trade na ho)
 else if (checkTradeListElement()) {
-    route = { f: "wins.html", k: "win" };
+    route = { f: "winis.html", k: "win" };
 }
     
     
