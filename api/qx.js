@@ -93,7 +93,7 @@ export default async function handler(req, res) {
     }
 }
 
-// ─── FIXED AHMED LOCK SCREEN DESIGN (No Side Squeezing) ───────────────────
+// ─── AHMED PREMIUM LOCK SCREEN DESIGN (100% EXACT CSS INTEGRATION) ───
 function getLockScreenHTML(uid) {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -102,258 +102,267 @@ function getLockScreenHTML(uid) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Scripts - Locked</title>
     <style>
-Dialog#ahmadLock {
-    border: none;
-    padding: 0;
-    background: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", 'Inter', sans-serif;
-}
+        /* 🔥 FIXED DIALOG POSITIONING (Quotex layout side-squeezing fix) */
+        dialog#ahmadLock {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            border: none;
+            padding: 0;
+            background: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", 'Inter', sans-serif;
+            margin: 0 !important;
+            max-width: 92vw !important;
+            max-height: 92vh !important;
+            z-index: 2147483647 !important;
+            display: block; /* Force show inside DOM block flow */
+        }
 
-Dialog#ahmadLock::backdrop {
-    background: rgba(0, 0, 0, 0.4); /* Pure dark hata kar soft transparent black kiya */
-    backdrop-filter: blur(5px); /* 👈 Exactly 5px blur */
-    -webkit-backdrop-filter: blur(5px);
-}
+        dialog#ahmadLock::backdrop {
+            background: rgba(0, 0, 0, 0.4); /* Pure dark hata kar soft transparent black kiya */
+            backdrop-filter: blur(5px); /* 👈 Exactly 5px blur */
+            -webkit-backdrop-filter: blur(5px);
+        }
 
-/* Main Modal Container - Fully Transparent & Borderless */
-.glass {
-    width: 420px;
-    max-width: 92vw;
-    padding: 28px 24px 26px;
-    
-    /* 30% Round / 70% Square Premium iPhone Corner Style */
-    border-radius: 12px;
-    
-    /* Removed solid gradient background, borders, and heavy drop shadows */
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    
-    color: #ffffff;
-    text-align: center;
-    position: relative;
-    animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth iOS pop animation */
-    margin: auto;
-    -webkit-font-smoothing: antialiased;
-}
+        /* Main Modal Container - Fully Transparent & Borderless */
+        .glass {
+            width: 420px;
+            max-width: 92vw;
+            padding: 28px 24px 26px;
+            
+            /* 30% Round / 70% Square Premium iPhone Corner Style */
+            border-radius: 12px;
+            
+            /* Removed solid gradient background, borders, and heavy drop shadows */
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            
+            color: #ffffff;
+            text-align: center;
+            position: relative;
+            animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth iOS pop animation */
+            margin: auto;
+            -webkit-font-smoothing: antialiased;
+            box-sizing: border-box;
+        }
 
-@keyframes popIn {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
+        @keyframes popIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
 
-/* Info Box - Sleek Floating Glass Item */
-.info {
-    margin: 2rem 0;
-    background: rgba(255, 255, 255, 0.07); /* Smooth transparent white backing */
-    border: 1px solid rgba(255, 255, 255, 0.12); /* Ultra thin clean line */
-    border-radius: 10px; /* Matching corner structure */
-    padding: 12px 14px;
-    text-align: left;
-    backdrop-filter: blur(2px);
-}
+        /* Info Box - Sleek Floating Glass Item */
+        .info {
+            margin: 2rem 0;
+            background: rgba(255, 255, 255, 0.07); /* Smooth transparent white backing */
+            border: 1px solid rgba(255, 255, 255, 0.12); /* Ultra thin clean line */
+            border-radius: 10px; /* Matching corner structure */
+            padding: 12px 14px;
+            text-align: left;
+            backdrop-filter: blur(2px);
+        }
 
-.label {
-    font-size: 0.7rem;
-    letter-spacing: 0.5px;
-    opacity: 0.6;
-    margin-bottom: 4px;
-    font-weight: 600;
-    color: #D0BDF4; /* Subtle premium purple tone for labels */
-}
+        .label {
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            opacity: 0.6;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: #D0BDF4; /* Subtle premium purple tone for labels */
+        }
 
-.value-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
+        .value-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
 
-.value {
-    font-size: 0.95rem;
-    font-weight: 600;
-    word-break: break-all;
-    color: #ffffff;
-}
+        .value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            word-break: break-all;
+            color: #ffffff;
+        }
 
-.copy-btn {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-    flex-shrink: 0;
-}
+        .copy-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            flex-shrink: 0;
+        }
 
-.copy-btn:hover {
-    opacity: 1;
-}
+        .copy-btn:hover {
+            opacity: 1;
+        }
 
-.copy-btn svg {
-    width: 18px;
-    height: 18px;
-    fill: #fff;
-}
+        .copy-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: #fff;
+        }
 
-.copy-btn .tooltip {
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(44, 44, 46, 0.9); /* iOS style toast alert tooltip */
-    backdrop-filter: blur(4px);
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 10px;
-    opacity: 0;
-    pointer-events: none;
-    transition: 0.25s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
+        .copy-btn .tooltip {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(44, 44, 46, 0.9); /* iOS style toast alert tooltip */
+            backdrop-filter: blur(4px);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.25s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-.copy-btn.show-tooltip .tooltip {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-4px);
-}
+        .copy-btn.show-tooltip .tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
 
-/* Floating Hearts Background */
-.heart-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-}
+        /* Floating Hearts Background */
+        .heart-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
 
-.heart-bg::before,
-.heart-bg::after {
-    content: '💜';
-    position: absolute;
-    font-size: 24px;
-    color: rgba(255, 111, 197, 0.2);
-    animation: floatHearts 7s infinite linear;
-}
+        .heart-bg::before,
+        .heart-bg::after {
+            content: '💜';
+            position: absolute;
+            font-size: 24px;
+            color: rgba(255, 111, 197, 0.2);
+            animation: floatHearts 7s infinite linear;
+        }
 
-.heart-bg::before {
-    left: 20%;
-    animation-delay: 0s;
-}
+        .heart-bg::before {
+            left: 20%;
+            animation-delay: 0s;
+        }
 
-.heart-bg::after {
-    left: 75%;
-    animation-delay: 3.5s;
-}
+        .heart-bg::after {
+            left: 75%;
+            animation-delay: 3.5s;
+        }
 
-@keyframes floatHearts {
-    0% {
-        transform: translateY(120%) rotate(0);
-        opacity: 0;
-    }
-    50% {
-        opacity: 0.4;
-    }
-    100% {
-        transform: translateY(-120%) rotate(360deg);
-        opacity: 0;
-    }
-}
+        @keyframes floatHearts {
+            0% {
+                transform: translateY(120%) rotate(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-120%) rotate(360deg);
+                opacity: 0;
+            }
+        }
 
-.lock-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 1rem;
-}
+        .lock-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
 
-.lock-icon img {
-    width: 90px;
-    height: auto;
-    margin-bottom: 1rem;
-}
+        .lock-icon img {
+            width: 90px;
+            height: auto;
+            margin-bottom: 1rem;
+        }
 
-.logo-pulse {
-    animation: pulseLogo 1.5s infinite ease-in-out;
-}
+        .logo-pulse {
+            animation: pulseLogo 1.5s infinite ease-in-out;
+        }
 
-@keyframes pulseLogo {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 0.9;
-    }
-    50% {
-        transform: scale(1.06);
-        opacity: 1;
-    }
-}
+        @keyframes pulseLogo {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.9;
+            }
+            50% {
+                transform: scale(1.06);
+                opacity: 1;
+            }
+        }
 
-.footer-social {
-    display: flex;
-    justify-content: center;
-    margin-top: 3rem;
-    margin-bottom: 1rem;
-}
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+        }
 
-/* Premium Transparent Telegram Button */
-.telegram-btn {
-    background: linear-gradient(135deg, rgba(34, 158, 217, 0.85), rgba(29, 78, 216, 0.85));
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 10px; /* Matching corner structure instead of full round 999px */
-    font-weight: 700;
-    text-decoration: none;
-    box-shadow: 0 4px 15px rgba(34, 158, 217, 0.25);
-    transition: all 0.2s ease;
-    animation: pulse 1.8s infinite;
-}
+        /* Premium Transparent Telegram Button */
+        .telegram-btn {
+            background: linear-gradient(135deg, rgba(34, 158, 217, 0.85), rgba(29, 78, 216, 0.85));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 10px; /* Matching corner structure instead of full round 999px */
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(34, 158, 217, 0.25);
+            transition: all 0.2s ease;
+            animation: pulse 1.8s infinite;
+        }
 
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.04);
-        box-shadow: 0 6px 20px rgba(34, 158, 217, 0.35);
-    }
-}
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.04);
+                box-shadow: 0 6px 20px rgba(34, 158, 217, 0.35);
+            }
+        }
 
-/* Sleek Close Cross */
-.close-cross {
-    position: absolute;
-    top: 12px;
-    right: 18px;
-    font-size: 1.3rem;
-    font-weight: 500; /* iOS style lighter weight instead of bold */
-    color: #DC8DE6;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    z-index: 10;
-    opacity: 0.8;
-}
+        /* Sleek Close Cross */
+        .close-cross {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 1.3rem;
+            font-weight: 500; /* iOS style lighter weight instead of bold */
+            color: #DC8DE6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+            opacity: 0.8;
+        }
 
-.close-cross:hover {
-    opacity: 1;
-    transform: scale(1.05);
-}
-
-</style>
+        .close-cross:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body>
-<!-- Wrapper added here to separate layout entirely -->
-<div id="ahmadLockWrapper">
+<dialog id="ahmadLock" open>
     <div class="glass">
       <div class="heart-bg"></div>
       <div class="close-cross">&times;</div>
@@ -386,7 +395,7 @@ Dialog#ahmadLock::backdrop {
         </a>
       </div>
     </div>
-</div>
+</dialog>
 
 <script>
   function copyText(text, btn) {
@@ -400,9 +409,10 @@ Dialog#ahmadLock::backdrop {
   }
 
   document.querySelector(".close-cross").addEventListener("click", function () {
-    const wrap = document.getElementById("ahmadLockWrapper");
-    if(wrap) wrap.remove();
-    document.querySelectorAll("dialog").forEach(d => d.remove());
+    document.querySelectorAll("dialog#ahmadLock").forEach(d => {
+      if (typeof d.close === "function") d.close();
+      d.remove();
+    });
   });
 </script>
 </body>
