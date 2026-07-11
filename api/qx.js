@@ -190,35 +190,36 @@ function getLockScreenHTML(uid) {
 </html>`;
 }
 
+// ─── ERROR POPUP DESIGN (Non-blocking Top Bar) ──────────────────────────────
 function getErrorPopupHTML() {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error</title>
+    return `
+    <div id="ahmadErrorPopup" style="
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #e63946, #b7094c);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: bold;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        z-index: 2147483647;
+        box-shadow: 0 10px 30px rgba(230, 57, 70, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        letter-spacing: 0.5px;
+        text-align: center;
+        pointer-events: none;
+        animation: ahmadFadeIn 0.3s ease-out;
+    ">
+        ⚠️ APPLY ON CORRECT URL ⚠️
+    </div>
     <style>
-        body { background-color: #0c0a1c; margin: 0; padding: 0; }
-        #ahmadErrorPopup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.92);
-            color: white;
-            padding: 18px 28px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: sans-serif;
-            z-index: 999999;
-            width: 300px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
+        @keyframes ahmadFadeIn {
+            from { top: -50px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
         }
     </style>
-</head>
-<body>
-    <div id="ahmadErrorPopup">⚠️ APPLY ON CORRECT URL ⚠️</div>
-</body>
-</html>`;
+    `;
 }
