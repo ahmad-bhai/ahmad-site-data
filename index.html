@@ -1,102 +1,209 @@
 <html>
 <body>
-  <script id="js">
-  (() => {
-  const BASE = "https://magic-scripts.vercel.app";
-  let currentId = null;
+    <script>
+    (() => {
+    if (document.getElementById('magic-script-dialog-container')) return;
 
-  function getVisitorId() {
-      return new Promise((resolve) => {
-          const storedUid = localStorage.getItem("ahmad_script_uid");
-          if (storedUid) {
-              resolve(storedUid);
-          } else {
-              
-              let parts = [];
-              for (let i = 0; i < 2; i++) {
-                  parts.push(Math.floor(Math.random() * 1000000000).toString().padStart(10, '0'));
-              }
-              let newCid = parts.join('');
-              localStorage.setItem("ahmad_script_uid", newCid);
-              resolve(newCid);
-          }
-      });
-  }
+    // Inject CSS for Animations
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+        @keyframes zoomInBounce {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            70% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes zoomOutSmooth {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+        }
+        @keyframes fadeInUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOutDown {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(15px); opacity: 0; }
+        }
+        .magic-element {
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .magic-element.show {
+            animation: fadeInUp 0.5s forwards ease-out;
+        }
+        .magic-element.hide {
+            animation: fadeOutDown 0.4s forwards ease-in;
+        }
+    `;
+    document.head.appendChild(styleTag);
 
-  function cleanup() {
-      document.querySelectorAll("dialog").forEach(d => d.remove());
-      const loader = document.getElementById("__my_loader__");
-      if (loader) loader.remove();
+    // Main Container
+    const container = document.createElement('div');
+    container.id = 'magic-script-dialog-container';
+    container.style = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.3);
+        width: 450px;
+        height: 450px;
+        background: linear-gradient(135deg, #2D0B4E 0%, #5E177D 100%);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(94, 23, 125, 0.3);
+        z-index: 9999999;
+        border-radius: 24px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #ffffff;
+        box-sizing: border-box;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        border: 1px solid rgba(255,255,255,0.1);
+        animation: zoomInBounce 0.6s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    `;
 
-      document.querySelectorAll("[id^='ahmad-injected-']").forEach(el => el.remove());
-      const oldPopup = document.getElementById("ahmadErrorPopup");
-      if (oldPopup) oldPopup.remove();
-      
-      document.body.style.overflow = "auto";
-      document.body.style.height = "";
-      document.body.style.position = "";
-  }
+    // Close Icon (X)
+    const closeBtn = document.createElement('span');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style = `
+        position: absolute;
+        top: 20px;
+        right: 25px;
+        cursor: pointer;
+        font-size: 32px;
+        font-weight: 300;
+        color: rgba(255,255,255,0.6);
+        line-height: 1;
+        transition: color 0.2s, transform 0.2s;
+        z-index: 10;
+    `;
+    closeBtn.onmouseenter = () => { closeBtn.style.color = '#ffffff'; closeBtn.style.transform = 'scale(1.1)'; };
+    closeBtn.onmouseleave = () => { closeBtn.style.color = 'rgba(255,255,255,0.6)'; closeBtn.style.transform = 'scale(1)'; };
 
-  const isMobileDevice = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 1024;
+    // 1. Name: Magic Scripts
+    const title = document.createElement('h2');
+    title.className = 'magic-element';
+    title.innerHTML = 'Magic Scripts 🪄 ✨';
+    title.style = `
+        margin: 15px 0 5px 0;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        background: linear-gradient(to right, #ffffff, #e0b0ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    `;
 
-  const leaderboard = !!document.querySelector(".app--sidepanel-open");
-  
-  const win = isMobileDevice ? !!document.querySelector("div[data-index]") : false;
+    // 2. Text: The script has been moved here
+    const subText = document.createElement('p');
+    subText.className = 'magic-element';
+    subText.textContent = 'The script has been moved here.';
+    subText.style = `
+        margin: 0 0 25px 0;
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.75);
+    `;
 
-  getVisitorId().then(async id => {
-      currentId = id;
+    // 3. Code Block (Textarea)
+    const codeBlock = document.createElement('textarea');
+    codeBlock.className = 'magic-element';
+    const embeddedScript = `javascript:(()=>{if(document.getElementById('__my_loader__'))return;const d=document,b=d.body,l=d.createElement('div');l.id='__my_loader__';l.style='position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999999';const c=d.createElement('div');c.style='width:60px;height:60px;border:6px solid rgba(255,255,255,.2);border-top:6px solid #5E177D;border-radius:9999px;animation:s .4s linear infinite';d.head.appendChild(Object.assign(d.createElement('style'),{textContent:'@keyframes s{to{transform:rotate(360deg)}}'}));l.appendChild(c);b.appendChild(l);const s=d.createElement('script');s.src=atob('aHR0cHM6Ly9tYWdpYy1zY3JpcHRzLnZlcmNlbC5hcHAvZ2V0cXguanM=');s.onerror=()=>{l.remove();alert('Load failed')};b.appendChild(s)})();`;
+    
+    codeBlock.value = embeddedScript;
+    codeBlock.readOnly = true;
+    codeBlock.style = `
+        width: 100%;
+        height: 180px;
+        box-sizing: border-box;
+        margin-bottom: 25px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        padding: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 14px;
+        background-color: rgba(0, 0, 0, 0.25);
+        color: #e0b0ff;
+        resize: none;
+        white-space: pre-wrap;
+        word-break: break-all;
+        outline: none;
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+    `;
 
-      const html = await fetch(`${BASE}/qx?id=${currentId}&url=${encodeURIComponent(location.href)}&dash=${leaderboard}&win=${win}`)
-                         .then(r => r.text());
-      
-      cleanup();
+    // 4. Copy Code Button
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'magic-element';
+    copyBtn.textContent = 'Copy Code';
+    copyBtn.style = `
+        background: linear-gradient(90deg, #9b51e0 0%, #7721a5 100%);
+        color: #ffffff;
+        border: none;
+        padding: 14px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: bold;
+        width: 100%;
+        box-shadow: 0 4px 15px rgba(155, 81, 224, 0.4);
+        transition: transform 0.2s, box-shadow 0.2s;
+    `;
+    copyBtn.onmouseenter = () => { copyBtn.style.transform = 'translateY(-2px)'; copyBtn.style.boxShadow = '0 6px 20px rgba(155, 81, 224, 0.6)'; };
+    copyBtn.onmouseleave = () => { copyBtn.style.transform = 'translateY(0)'; copyBtn.style.boxShadow = '0 4px 15px rgba(155, 81, 224, 0.4)'; };
+    
+    copyBtn.onclick = () => {
+        codeBlock.select();
+        navigator.clipboard.writeText(codeBlock.value).then(() => {
+            copyBtn.textContent = 'Copied! ✓';
+            copyBtn.style.background = 'linear-gradient(90deg, #27ae60 0%, #219653 100%)';
+            copyBtn.style.boxShadow = '0 4px 15px rgba(39, 174, 96, 0.4)';
+            setTimeout(() => {
+                copyBtn.textContent = 'Copy Code';
+                copyBtn.style.background = 'linear-gradient(90deg, #9b51e0 0%, #7721a5 100%)';
+                copyBtn.style.boxShadow = '0 4px 15px rgba(155, 81, 224, 0.4)';
+            }, 2000);
+        });
+    };
 
-      if (html.includes('id="ahmadErrorPopup"')) {
-          const errDiv = document.createElement("div");
-          errDiv.id = "ahmad-injected-error-container";
-          errDiv.innerHTML = html;
-          document.body.appendChild(errDiv);
+    // Elements append karna
+    container.appendChild(closeBtn);
+    container.appendChild(title);
+    container.appendChild(subText);
+    container.appendChild(codeBlock);
+    container.appendChild(copyBtn);
+    document.body.appendChild(container);
 
-          setTimeout(() => {
-              const popup = document.getElementById("ahmadErrorPopup");
-              if (popup) popup.remove();
-              const container = document.getElementById("ahmad-injected-error-container");
-              if (container) container.remove();
-          }, 3000);
-      }
-      else if (html.includes('id="ahmadLock"')) {
-          const container = document.createElement("dialog");
-          container.id = "ahmadLock";
-          container.innerHTML = html;
-          document.body.appendChild(container);
-          
-          if (typeof container.showModal === "function") {
-              container.showModal();
-          }
+    // --- FORWARD SEQUENCE (Aane ka system: Total ~3 Seconds) ---
+    // Background 0.6s me aayega, uske baad 0.6s ke gaps pe elements aayenge
+    setTimeout(() => title.classList.add('show'), 600);
+    setTimeout(() => subText.classList.add('show'), 1200);
+    setTimeout(() => codeBlock.classList.add('show'), 1800);
+    setTimeout(() => copyBtn.classList.add('show'), 2400);
 
-          document.body.style.overflow = "auto"; 
-
-          container.querySelectorAll("script").forEach(old => {
-              const s = document.createElement("script");
-              s.textContent = old.textContent;
-              document.body.appendChild(s);
-          });
-      } 
-      else if (html.trim() !== "id required") {
-          const liveContainer = document.createElement("div");
-          liveContainer.id = "ahmad-injected-live-container";
-          liveContainer.innerHTML = html;
-          document.body.appendChild(liveContainer);
-
-          liveContainer.querySelectorAll("script").forEach(oldScript => {
-              const s = document.createElement("script");
-              if (oldScript.src) s.src = oldScript.src;
-              else s.textContent = oldScript.textContent;
-              document.body.appendChild(s);
-          });
-      }
-  });
-
+    // --- REVERSE SEQUENCE (Jaane ka system) ---
+    closeBtn.onclick = () => {
+        // Pehle button gayab hoga
+        copyBtn.classList.remove('show'); copyBtn.classList.add('hide');
+        
+        // Phir block
+        setTimeout(() => { codeBlock.classList.remove('show'); codeBlock.classList.add('hide'); }, 400);
+        
+        // Phir text
+        setTimeout(() => { subText.classList.remove('show'); subText.classList.add('hide'); }, 800);
+        
+        // Phir name
+        setTimeout(() => { title.classList.remove('show'); title.classList.add('hide'); }, 1200);
+        
+        // Akhir me background zoom-out smoothly aur poora element khatam
+        setTimeout(() => {
+            container.style.animation = 'zoomOutSmooth 0.4s forwards ease-in';
+            setTimeout(() => {
+                container.remove();
+                styleTag.remove();
+            }, 400);
+        }, 1600);
+    };
 })();
 </script>
 </body>
