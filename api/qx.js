@@ -190,35 +190,37 @@ function getLockScreenHTML(uid) {
 </html>`;
 }
 
-// ─── ERROR POPUP DESIGN (Non-blocking Top Bar) ──────────────────────────────
+// ─── ERROR POPUP DESIGN (Classic Center Style + Auto Animation) ────────────────
 function getErrorPopupHTML() {
     return `
-    <div id="ahmadErrorPopup" style="
-        position: fixed;
-        top: 50px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, #e63946, #b7094c);
-        color: white;
-        padding: 14px 32px;
-        border-radius: 8px;
-        font-size: 15px;
-        font-weight: bold;
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        z-index: 2147483647;
-        box-shadow: 0 10px 30px rgba(230, 57, 70, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        letter-spacing: 0.5px;
-        text-align: center;
-        pointer-events: none;
-        animation: ahmadFadeIn 0.3s ease-out;
-    ">
-        ⚠️ APPLY ON CORRECT URL ⚠️
-    </div>
+    <div id="ahmadErrorPopup">⚠️ APPLY ON CORRECT URL ⚠️</div>
+    
     <style>
-        @keyframes ahmadFadeIn {
-            from { top: -50px; opacity: 0; }
-            to { top: 20px; opacity: 1; }
+        #ahmadErrorPopup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.92);
+            color: white;
+            padding: 18px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: sans-serif;
+            z-index: 2147483647; /* Sabse upar dikhne ke liye */
+            width: 300px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none; /* Iske peeche screen par click ho sakega, freeze nahi hoga */
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            
+            /* Smooth smooth entry animation */
+            animation: ahmadPopupFadeIn 0.25s ease-out;
+        }
+
+        @keyframes ahmadPopupFadeIn {
+            from { transform: translate(-50%, -45%); opacity: 0; }
+            to { transform: translate(-50%, -50%); opacity: 1; }
         }
     </style>
     `;
