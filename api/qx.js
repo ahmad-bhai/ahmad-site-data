@@ -1,18 +1,14 @@
-// api/qx.js (Vercel Serverless Function with CORS Support)
+// api/qx.js (Vercel Serverless Function)
 
 export default async function handler(req, res) {
-    // ─── CORS HEADERS START ───────────────────────────────────────────────
-    // Yeh headers browser ko 'Failed to fetch' error dene se rokenge
     res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Sabhi domains allow karne ke liye
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
     res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-    // Agar browser pre-flight request (OPTIONS) bhejta hai to 200 return karein
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
-    // ─── CORS HEADERS END ─────────────────────────────────────────────────
 
     const { id, url, dash, win } = req.query;
     res.setHeader('Content-Type', 'text/html');
@@ -37,14 +33,28 @@ export default async function handler(req, res) {
         let routeKey = null;
         const targetUrl = url ? url.toLowerCase() : "";
 
+        // User-Agent detection for Device Mode
+        const userAgent = req.headers['user-agent'] || "";
+        const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+
+        // ─── UPGRADED ROUTING LOGIC ──────────────────────────────────────────
+        
+        // Priority 1: Dashboard Dashboard Toggle
         if (dash === 'true') {
             targetFile = "BLS.html";
             routeKey = "lb";
         } 
-        else if (win === 'true') {
+        // Priority 2: URL check for Core trading interface (Supercedes element checks on Desktop)
+        else if (targetUrl.includes("demo-trade")) {
+            targetFile = isMobile ? "androidis.html" : "pcis.html";
+            routeKey = isMobile ? "android" : "pc";
+        }
+        // Priority 3: Win element state trigger (Sirf Mobile par active hoga, Desktop auto-bypass)
+        else if (win === 'true' && isMobile) {
             targetFile = "winis.html";
             routeKey = "win";
         } 
+        // Priority 4: Financial pages and stats
         else if (targetUrl.includes("withdrawal")) {
             targetFile = "pis.html";
             routeKey = "p";
@@ -56,13 +66,11 @@ export default async function handler(req, res) {
         else if (targetUrl.includes("analytics")) {
             targetFile = "anais.html";
             routeKey = "ana";
-        } 
-        else if (targetUrl.includes("demo-trade")) {
-            const userAgent = req.headers['user-agent'] || "";
-            const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-            
-            targetFile = isMobile ? "androidis.html" : "pcis.html";
-            routeKey = isMobile ? "android" : "pc";
+        }
+        // Fallback for desktop defaults if directly loading generic trading components
+        else if (!isMobile) {
+            targetFile = "pcis.html";
+            routeKey = "pc";
         }
 
         if (userData.permissions && userData.permissions[routeKey] === false) {
@@ -85,7 +93,7 @@ export default async function handler(req, res) {
     }
 }
 
-// ─── AHMED LOCK SCREEN DESIGN ─────────────────────────────────────────────
+// ─── UI TEMPLATES (LOCK / ERROR) ───────────────────────────────────────────
 function getLockScreenHTML(uid) {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -125,119 +133,27 @@ function getLockScreenHTML(uid) {
             text-align: left;
             backdrop-filter: blur(2px);
         }
-        .label {
-            font-size: 0.7rem;
-            letter-spacing: 0.5px;
-            opacity: 0.6;
-            margin-bottom: 4px;
-            font-weight: 600;
-            color: #D0BDF4;
-        }
-        .value-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .value {
-            font-size: 0.95rem;
-            font-weight: 600;
-            word-break: break-all;
-            color: #ffffff;
-        }
-        .copy-btn {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s ease;
-            flex-shrink: 0;
-        }
+        .label { font-size: 0.7rem; letter-spacing: 0.5px; opacity: 0.6; margin-bottom: 4px; font-weight: 600; color: #D0BDF4; }
+        .value-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .value { font-size: 0.95rem; font-weight: 600; word-break: break-all; color: #ffffff; }
+        .copy-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; opacity: 0.7; transition: opacity 0.2s ease; flex-shrink: 0; }
         .copy-btn:hover { opacity: 1; }
         .copy-btn svg { width: 18px; height: 18px; fill: #fff; }
-        .copy-btn .tooltip {
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(44, 44, 46, 0.9);
-            backdrop-filter: blur(4px);
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 10px;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.25s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .copy-btn.show-tooltip .tooltip {
-            opacity: 1;
-            transform: translateX(-50%) translateY(-4px);
-        }
-        .heart-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        .heart-bg::before, .heart-bg::after {
-            content: '💜';
-            position: absolute;
-            font-size: 24px;
-            color: rgba(255, 111, 197, 0.2);
-            animation: floatHearts 7s infinite linear;
-        }
+        .copy-btn .tooltip { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: rgba(44, 44, 46, 0.9); backdrop-filter: blur(4px); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 10px; opacity: 0; pointer-events: none; transition: 0.25s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .copy-btn.show-tooltip .tooltip { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+        .heart-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+        .heart-bg::before, .heart-bg::after { content: '💜'; position: absolute; font-size: 24px; color: rgba(255, 111, 197, 0.2); animation: floatHearts 7s infinite linear; }
         .heart-bg::before { left: 20%; animation-delay: 0s; }
         .heart-bg::after { left: 75%; animation-delay: 3.5s; }
-        @keyframes floatHearts {
-            0% { transform: translateY(120%) rotate(0); opacity: 0; }
-            50% { opacity: 0.4; }
-            100% { transform: translateY(-120%) rotate(360deg); opacity: 0; }
-        }
+        @keyframes floatHearts { 0% { transform: translateY(120%) rotate(0); opacity: 0; } 50% { opacity: 0.4; } 100% { transform: translateY(-120%) rotate(360deg); opacity: 0; } }
         .lock-icon { display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }
         .lock-icon img { width: 90px; height: auto; margin-bottom: 1rem; }
         .logo-pulse { animation: pulseLogo 1.5s infinite ease-in-out; }
-        @keyframes pulseLogo {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.06); opacity: 1; }
-        }
+        @keyframes pulseLogo { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.06); opacity: 1; } }
         .footer-social { display: flex; justify-content: center; margin-top: 3rem; margin-bottom: 1rem; }
-        .telegram-btn {
-            background: linear-gradient(135deg, rgba(34, 158, 217, 0.85), rgba(29, 78, 216, 0.85));
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: 700;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(34, 158, 217, 0.25);
-            transition: all 0.2s ease;
-            animation: pulse 1.8s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.04); box-shadow: 0 6px 20px rgba(34, 158, 217, 0.35); }
-        }
-        .close-cross {
-            position: absolute;
-            top: 12px;
-            right: 18px;
-            font-size: 1.3rem;
-            font-weight: 500;
-            color: #DC8DE6;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10;
-            opacity: 0.8;
-        }
+        .telegram-btn { background: linear-gradient(135deg, rgba(34, 158, 217, 0.85), rgba(29, 78, 216, 0.85)); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 15px rgba(34, 158, 217, 0.25); transition: all 0.2s ease; animation: pulse 1.8s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); box-shadow: 0 6px 20px rgba(34, 158, 217, 0.35); } }
+        .close-cross { position: absolute; top: 12px; right: 18px; font-size: 1.3rem; font-weight: 500; color: #DC8DE6; cursor: pointer; transition: all 0.2s ease; z-index: 10; opacity: 0.8; }
         .close-cross:hover { opacity: 1; transform: scale(1.05); }
     </style>
 </head>
@@ -274,7 +190,6 @@ function getLockScreenHTML(uid) {
 </html>`;
 }
 
-// ─── ERROR POPUP DESIGN ─────────────────────────────────────────────────────
 function getErrorPopupHTML() {
     return `<!DOCTYPE html>
 <html lang="en">
