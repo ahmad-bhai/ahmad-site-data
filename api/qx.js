@@ -1,13 +1,22 @@
-// api/qx.js (Vercel Serverless Function)
+// api/qx.js (Vercel Serverless Function with CORS Support)
 
 export default async function handler(req, res) {
-    // URL query params se data nikaalna (Luv Scripts pattern)
-    const { id, url, dash, win } = req.query;
+    // ─── CORS HEADERS START ───────────────────────────────────────────────
+    // Yeh headers browser ko 'Failed to fetch' error dene se rokenge
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Sabhi domains allow karne ke liye
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-    // Response headers html format ke liye
+    // Agar browser pre-flight request (OPTIONS) bhejta hai to 200 return karein
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    // ─── CORS HEADERS END ─────────────────────────────────────────────────
+
+    const { id, url, dash, win } = req.query;
     res.setHeader('Content-Type', 'text/html');
 
-    // 1. Check ID status
     if (!id) {
         return res.status(200).send("id required");
     }
@@ -16,20 +25,16 @@ export default async function handler(req, res) {
     const baseURL = "https://ahmad-bhai-scripts.vercel.app/";
 
     try {
-        // Firebase se users fetch aur verify karna
         const fbRes = await fetch(dbURL);
         const fbData = await fbRes.json();
         const userData = fbData ? Object.values(fbData).find(u => u.id === id) : null;
 
-        // Agar user database mein nahi mila, toh direct aapka Custom Lock Dialog Screen return karein
         if (!userData) {
             return res.status(200).send(getLockScreenHTML(id));
         }
 
-        // 2. Server-Side Routing System (Luv Scripts Logic)
         let targetFile = null;
         let routeKey = null;
-
         const targetUrl = url ? url.toLowerCase() : "";
 
         if (dash === 'true') {
@@ -53,7 +58,6 @@ export default async function handler(req, res) {
             routeKey = "ana";
         } 
         else if (targetUrl.includes("demo-trade")) {
-            // User-Agent se live check karna (Desktop mode hai ya mobile)
             const userAgent = req.headers['user-agent'] || "";
             const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
             
@@ -61,17 +65,14 @@ export default async function handler(req, res) {
             routeKey = isMobile ? "android" : "pc";
         }
 
-        // Agar specific user permissions false hain toh lock screen return karein
         if (userData.permissions && userData.permissions[routeKey] === false) {
             return res.status(200).send(getLockScreenHTML(id));
         }
 
-        // 3. Agar koi bhi condition match na ho (Wrong URL/Incorrect Endpoint)
         if (!targetFile) {
             return res.status(200).send(getErrorPopupHTML());
         }
 
-        // 4. Server se code fetch karke direct return karna (Client ko extra code nahi dikhega)
         const fileRes = await fetch(baseURL + targetFile);
         if (!fileRes.ok) throw new Error("File not found on script server");
         
@@ -84,14 +85,14 @@ export default async function handler(req, res) {
     }
 }
 
-// ─── AHMED LOCK SCREEN DESIGN (SAME TO SAME UI) ─────────────────────────────
+// ─── AHMED LOCK SCREEN DESIGN ─────────────────────────────────────────────
 function getLockScreenHTML(uid) {
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magic Scripts</title>
+    <title>Magic Scripts - Locked</title>
     <style>
         body { background-color: #0c0a1c; margin: 0; padding: 0; }
         dialog#ahmadLock {
@@ -273,7 +274,7 @@ function getLockScreenHTML(uid) {
 </html>`;
 }
 
-// ─── ERROR POPUP DESIGN (SAME TO SAME UI) ───────────────────────────────────
+// ─── ERROR POPUP DESIGN ─────────────────────────────────────────────────────
 function getErrorPopupHTML() {
     return `<!DOCTYPE html>
 <html lang="en">
