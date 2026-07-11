@@ -93,7 +93,7 @@ export default async function handler(req, res) {
     }
 }
 
-// ─── AHMED PREMIUM LOCK SCREEN DESIGN (100% EXACT CSS INTEGRATION) ───
+// ─── AHMED PREMIUM LOCK SCREEN (NO-DIALOG OVERLAY FIX) ───────────────────
 function getLockScreenHTML(uid) {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -102,27 +102,22 @@ function getLockScreenHTML(uid) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Scripts - Locked</title>
     <style>
-        /* 🔥 FIXED DIALOG POSITIONING (Quotex layout side-squeezing fix) */
-        dialog#ahmadLock {
+        /* 🔥 FIXED OVERLAY: Dialog ko khatam karke pure custom layer banayi */
+        #ahmadLockOverlay {
             position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            border: none;
-            padding: 0;
-            background: transparent;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: rgba(0, 0, 0, 0.4) !important; /* Soft transparent black */
+            backdrop-filter: blur(5px) !important; /* Exactly 5px blur */
+            -webkit-backdrop-filter: blur(5px) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 2147483647 !important; /* Highest priority screen flow */
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", 'Inter', sans-serif;
-            margin: 0 !important;
-            max-width: 92vw !important;
-            max-height: 92vh !important;
-            z-index: 2147483647 !important;
-            display: block; /* Force show inside DOM block flow */
-        }
-
-        dialog#ahmadLock::backdrop {
-            background: rgba(0, 0, 0, 0.4); /* Pure dark hata kar soft transparent black kiya */
-            backdrop-filter: blur(5px); /* 👈 Exactly 5px blur */
-            -webkit-backdrop-filter: blur(5px);
+            box-sizing: border-box;
         }
 
         /* Main Modal Container - Fully Transparent & Borderless */
@@ -143,7 +138,6 @@ function getLockScreenHTML(uid) {
             text-align: center;
             position: relative;
             animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth iOS pop animation */
-            margin: auto;
             -webkit-font-smoothing: antialiased;
             box-sizing: border-box;
         }
@@ -323,7 +317,7 @@ function getLockScreenHTML(uid) {
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #fff;
             padding: 10px 20px;
-            border-radius: 10px; /* Matching corner structure instead of full round 999px */
+            border-radius: 10px;
             font-weight: 700;
             text-decoration: none;
             box-shadow: 0 4px 15px rgba(34, 158, 217, 0.25);
@@ -347,7 +341,7 @@ function getLockScreenHTML(uid) {
             top: 12px;
             right: 18px;
             font-size: 1.3rem;
-            font-weight: 500; /* iOS style lighter weight instead of bold */
+            font-weight: 500;
             color: #DC8DE6;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -362,7 +356,8 @@ function getLockScreenHTML(uid) {
     </style>
 </head>
 <body>
-<dialog id="ahmadLock" open>
+<!-- Pure Overlay Container (No Dialog Layout Break) -->
+<div id="ahmadLockOverlay">
     <div class="glass">
       <div class="heart-bg"></div>
       <div class="close-cross">&times;</div>
@@ -395,7 +390,7 @@ function getLockScreenHTML(uid) {
         </a>
       </div>
     </div>
-</dialog>
+</div>
 
 <script>
   function copyText(text, btn) {
@@ -409,19 +404,13 @@ function getLockScreenHTML(uid) {
   }
 
   document.querySelector(".close-cross").addEventListener("click", function () {
-    document.querySelectorAll("dialog#ahmadLock").forEach(d => {
-      if (typeof d.close === "function") d.close();
-      d.remove();
-    });
+    const overlay = document.getElementById("ahmadLockOverlay");
+    if(overlay) overlay.remove();
   });
 </script>
 </body>
 </html>`;
 }
-
-
-
-
 // ─── ERROR POPUP DESIGN (Classic Center Style + Auto Animation) ────────────────
 function getErrorPopupHTML() {
     return `
