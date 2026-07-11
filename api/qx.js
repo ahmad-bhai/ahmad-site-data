@@ -93,7 +93,7 @@ export default async function handler(req, res) {
     }
 }
 
-// ─── AHMED LOCK SCREEN DESIGN (Luv Scripts Div Style Integration) ───────────
+// ─── AHMED LOCK SCREEN DESIGN (Your Style + Structure Flow) ───────────
 function getLockScreenHTML(uid) {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -101,8 +101,13 @@ function getLockScreenHTML(uid) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Scripts - Locked</title>
-<style>
-        body { background-color: #0c0a1c; margin: 0; padding: 0; }
+    <style>
+        body { 
+            background-color: #0c0a1c; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
         dialog#ahmadLock {
             border: none;
             padding: 0;
@@ -111,6 +116,7 @@ function getLockScreenHTML(uid) {
             display: block;
             margin: 15vh auto;
         }
+
         .glass {
             width: 420px;
             max-width: 92vw;
@@ -123,7 +129,14 @@ function getLockScreenHTML(uid) {
             text-align: center;
             position: relative;
             -webkit-font-smoothing: antialiased;
+            animation: popIn 0.35s ease-out;
         }
+
+        @keyframes popIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         .info {
             margin: 2rem 0;
             background: rgba(255, 255, 255, 0.07);
@@ -133,27 +146,136 @@ function getLockScreenHTML(uid) {
             text-align: left;
             backdrop-filter: blur(2px);
         }
-        .label { font-size: 0.7rem; letter-spacing: 0.5px; opacity: 0.6; margin-bottom: 4px; font-weight: 600; color: #D0BDF4; }
-        .value-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-        .value { font-size: 0.95rem; font-weight: 600; word-break: break-all; color: #ffffff; }
-        .copy-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; opacity: 0.7; transition: opacity 0.2s ease; flex-shrink: 0; }
+
+        .label { 
+            font-size: 0.7rem; 
+            letter-spacing: 0.5px; 
+            opacity: 0.6; 
+            margin-bottom: 4px; 
+            font-weight: 600; 
+            color: #D0BDF4; 
+        }
+
+        .value-row { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 10px; 
+        }
+
+        .value { 
+            font-size: 0.95rem; 
+            font-weight: 600; 
+            word-break: break-all; 
+            color: #ffffff; 
+        }
+
+        .copy-btn { 
+            position: relative; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: transparent; 
+            border: none; 
+            cursor: pointer; 
+            opacity: 0.7; 
+            transition: opacity 0.2s ease; 
+            flex-shrink: 0; 
+        }
+        
         .copy-btn:hover { opacity: 1; }
         .copy-btn svg { width: 18px; height: 18px; fill: #fff; }
-        .copy-btn .tooltip { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); background: rgba(44, 44, 46, 0.9); backdrop-filter: blur(4px); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 10px; opacity: 0; pointer-events: none; transition: 0.25s ease; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .copy-btn.show-tooltip .tooltip { opacity: 1; transform: translateX(-50%) translateY(-4px); }
-        .heart-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
-        .heart-bg::before, .heart-bg::after { content: '💜'; position: absolute; font-size: 24px; color: rgba(255, 111, 197, 0.2); animation: floatHearts 7s infinite linear; }
+        
+        .copy-btn .tooltip { 
+            position: absolute; 
+            top: -40px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: rgba(44, 44, 46, 0.9); 
+            backdrop-filter: blur(4px); 
+            color: #fff; 
+            padding: 6px 10px; 
+            border-radius: 6px; 
+            font-size: 10px; 
+            opacity: 0; 
+            pointer-events: none; 
+            transition: opacity 0.3s ease, transform 0.3s ease; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        
+        .copy-btn.show-tooltip .tooltip { 
+            opacity: 1; 
+            transform: translateX(-50%) translateY(-4px); 
+        }
+
+        .heart-bg { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+            overflow: hidden; 
+        }
+        
+        .heart-bg::before, .heart-bg::after { 
+            content: '💜'; 
+            position: absolute; 
+            font-size: 24px; 
+            color: rgba(255, 111, 197, 0.2); 
+            animation: floatHearts 7s infinite linear; 
+        }
+        
         .heart-bg::before { left: 20%; animation-delay: 0s; }
         .heart-bg::after { left: 75%; animation-delay: 3.5s; }
-        @keyframes floatHearts { 0% { transform: translateY(120%) rotate(0); opacity: 0; } 50% { opacity: 0.4; } 100% { transform: translateY(-120%) rotate(360deg); opacity: 0; } }
+        
+        @keyframes floatHearts { 
+            0% { transform: translateY(120%) rotate(0); opacity: 0; } 
+            50% { opacity: 0.4; } 
+            100% { transform: translateY(-120%) rotate(360deg); opacity: 0; } 
+        }
+
         .lock-icon { display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }
         .lock-icon img { width: 90px; height: auto; margin-bottom: 1rem; }
+        
         .logo-pulse { animation: pulseLogo 1.5s infinite ease-in-out; }
-        @keyframes pulseLogo { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.06); opacity: 1; } }
+        @keyframes pulseLogo { 
+            0%, 100% { transform: scale(1); opacity: 0.9; } 
+            50% { transform: scale(1.06); opacity: 1; } 
+        }
+
         .footer-social { display: flex; justify-content: center; margin-top: 3rem; margin-bottom: 1rem; }
-        .telegram-btn { background: linear-gradient(135deg, rgba(34, 158, 217, 0.85), rgba(29, 78, 216, 0.85)); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 10px 20px; border-radius: 10px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 15px rgba(34, 158, 217, 0.25); transition: all 0.2s ease; animation: pulse 1.8s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); box-shadow: 0 6px 20px rgba(34, 158, 217, 0.35); } }
-        .close-cross { position: absolute; top: 12px; right: 18px; font-size: 1.3rem; font-weight: 500; color: #DC8DE6; cursor: pointer; transition: all 0.2s ease; z-index: 10; opacity: 0.8; }
+        
+        .telegram-btn { 
+            background: linear-gradient(135deg, rgba(34, 158, 217, 0.85), rgba(29, 78, 216, 0.85)); 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            color: #fff; 
+            padding: 10px 20px; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            text-decoration: none; 
+            box-shadow: 0 4px 15px rgba(34, 158, 217, 0.25); 
+            transition: all 0.2s ease; 
+            animation: pulse 1.8s infinite; 
+        }
+        
+        @keyframes pulse { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.04); box-shadow: 0 6px 20px rgba(34, 158, 217, 0.35); } 
+        }
+
+        .close-cross { 
+            position: absolute; 
+            top: 12px; 
+            right: 18px; 
+            font-size: 1.3rem; 
+            font-weight: 500; 
+            color: #DC8DE6; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            z-index: 10; 
+            opacity: 0.8; 
+        }
         .close-cross:hover { opacity: 1; transform: scale(1.05); }
     </style>
 </head>
@@ -172,7 +294,7 @@ function getLockScreenHTML(uid) {
     (🔒 LOCKED 🔒)
   </div>
 
-  <!-- KEY (Dynamic ID inside Div row) -->
+  <!-- KEY (Dynamic ID inside custom info container) -->
   <div class="info">
     <div class="label">ID</div>
     <div class="value-row">
@@ -187,7 +309,7 @@ function getLockScreenHTML(uid) {
   </div>
 
   <div class="footer-social">
-    <a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn pulse">
+    <a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">
       🚀 Telegram @Magic_Scripts
     </a>
   </div>
@@ -198,7 +320,7 @@ function getLockScreenHTML(uid) {
     if (!navigator.clipboard) return;
     navigator.clipboard.writeText(text).then(() => {
       btn.classList.remove('show-tooltip');
-      void btn.offsetWidth; // force reflow
+      void btn.offsetWidth; // Force element layout reflow
       btn.classList.add('show-tooltip');
       setTimeout(() => btn.classList.remove('show-tooltip'), 1200);
     });
@@ -206,14 +328,15 @@ function getLockScreenHTML(uid) {
 
   document.querySelector(".close-cross").addEventListener("click", function () {
     document.querySelectorAll("dialog").forEach(d => { 
-      d.close();
+      if (typeof d.close === "function") d.close();
       d.remove();
     });
   });
 </script>
 </body>
 </html>`;
-          }
+}
+
 
 
 // ─── ERROR POPUP DESIGN (Classic Center Style + Auto Animation) ────────────────
