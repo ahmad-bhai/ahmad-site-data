@@ -93,7 +93,7 @@ export default async function handler(req, res) {
     }
 }
 
-// ─── AHMED LOCK SCREEN DESIGN (Your Style + Structure Flow) ───────────
+// ─── FIXED AHMED LOCK SCREEN DESIGN (No Side Squeezing) ───────────────────
 function getLockScreenHTML(uid) {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -102,24 +102,26 @@ function getLockScreenHTML(uid) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Scripts - Locked</title>
     <style>
-        body { 
-            background-color: #0c0a1c; 
-            margin: 0; 
-            padding: 0; 
-        }
-        
-        dialog#ahmadLock {
-            border: none;
-            padding: 0;
-            background: transparent;
+        /* 🔥 FIX: Pure lock wrap ko trading screen se alag overlay banana */
+        #ahmadLockWrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(12, 10, 28, 0.95); /* Quotex chart ko hide karne ke liye full screen dark background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2147483647; /* Sabse upar display hoga */
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", 'Inter', sans-serif;
-            display: block;
-            margin: 15vh auto;
+            overflow-y: auto;
         }
 
+        /* Glass container bilkul screen ke center mein fit rahega */
         .glass {
             width: 420px;
-            max-width: 92vw;
+            max-width: 90vw;
             padding: 28px 24px 26px;
             border-radius: 12px;
             background: transparent;
@@ -129,11 +131,12 @@ function getLockScreenHTML(uid) {
             text-align: center;
             position: relative;
             -webkit-font-smoothing: antialiased;
-            animation: popIn 0.35s ease-out;
+            animation: popIn 0.3s ease-out;
+            box-sizing: border-box;
         }
 
         @keyframes popIn {
-            from { transform: scale(0.85); opacity: 0; }
+            from { transform: scale(0.9); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
 
@@ -192,7 +195,6 @@ function getLockScreenHTML(uid) {
             left: 50%; 
             transform: translateX(-50%); 
             background: rgba(44, 44, 46, 0.9); 
-            backdrop-filter: blur(4px); 
             color: #fff; 
             padding: 6px 10px; 
             border-radius: 6px; 
@@ -280,39 +282,40 @@ function getLockScreenHTML(uid) {
     </style>
 </head>
 <body>
-<div class="glass">
-  <div class="heart-bg"></div>
-  <!-- Top-right close cross -->
-  <div class="close-cross">&times;</div>
-  <div class="lock-icon logo-pulse">
-    <img src="https://i.ibb.co/xqXhx24Z/MS.png" alt="Logo" />
-  </div>
-  <div style="font-size:2rem;font-weight:900;color:#fff; text-shadow:0 5px 25px rgba(0,0,0,0.35);letter-spacing:1px;margin-bottom:10px;margin-top: 1rem;">
-    MAGIC SCRIPTS
-  </div>
-  <div style="font-size:1rem;color:#DC8DE6; margin:1rem 0;letter-spacing:1px;">
-    (🔒 LOCKED 🔒)
-  </div>
+<!-- Wrapper added here to separate layout entirely -->
+<div id="ahmadLockWrapper">
+    <div class="glass">
+      <div class="heart-bg"></div>
+      <div class="close-cross">&times;</div>
+      <div class="lock-icon logo-pulse">
+        <img src="https://i.ibb.co/xqXhx24Z/MS.png" alt="Logo" />
+      </div>
+      <div style="font-size:2rem;font-weight:900;color:#fff; text-shadow:0 5px 25px rgba(0,0,0,0.35);letter-spacing:1px;margin-bottom:10px;margin-top: 1rem;">
+        MAGIC SCRIPTS
+      </div>
+      <div style="font-size:1rem;color:#DC8DE6; margin:1rem 0;letter-spacing:1px;">
+        (🔒 LOCKED 🔒)
+      </div>
 
-  <!-- KEY (Dynamic ID inside custom info container) -->
-  <div class="info">
-    <div class="label">ID</div>
-    <div class="value-row">
-      <div class="value" id="vid">${uid}</div>
-      <button class="copy-btn" onclick="copyText('${uid}', this)">
-        <svg viewBox="0 0 24 24">
-          <path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" />
-        </svg>
-        <span class="tooltip">Copied ✓</span>
-      </button>
+      <div class="info">
+        <div class="label">ID</div>
+        <div class="value-row">
+          <div class="value" id="vid">${uid}</div>
+          <button class="copy-btn" onclick="copyText('${uid}', this)">
+            <svg viewBox="0 0 24 24">
+              <path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v16h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" />
+            </svg>
+            <span class="tooltip">Copied ✓</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="footer-social">
+        <a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">
+          🚀 Telegram @Magic_Scripts
+        </a>
+      </div>
     </div>
-  </div>
-
-  <div class="footer-social">
-    <a href="https://t.me/Magic_Scripts" target="_blank" class="telegram-btn">
-      🚀 Telegram @Magic_Scripts
-    </a>
-  </div>
 </div>
 
 <script>
@@ -320,22 +323,22 @@ function getLockScreenHTML(uid) {
     if (!navigator.clipboard) return;
     navigator.clipboard.writeText(text).then(() => {
       btn.classList.remove('show-tooltip');
-      void btn.offsetWidth; // Force element layout reflow
+      void btn.offsetWidth; 
       btn.classList.add('show-tooltip');
       setTimeout(() => btn.classList.remove('show-tooltip'), 1200);
     });
   }
 
   document.querySelector(".close-cross").addEventListener("click", function () {
-    document.querySelectorAll("dialog").forEach(d => { 
-      if (typeof d.close === "function") d.close();
-      d.remove();
-    });
+    const wrap = document.getElementById("ahmadLockWrapper");
+    if(wrap) wrap.remove();
+    document.querySelectorAll("dialog").forEach(d => d.remove());
   });
 </script>
 </body>
 </html>`;
 }
+
 
 
 
