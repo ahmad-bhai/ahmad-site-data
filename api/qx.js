@@ -195,7 +195,7 @@ function getErrorPopupHTML() {
     return `
     <div id="ahmadErrorPopup" style="
         position: fixed;
-        top: 20px;
+        top: 50px;
         left: 50%;
         transform: translateX(-50%);
         background: linear-gradient(135deg, #e63946, #b7094c);
