@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/qx", "destination": "/api/qx" }
+    { "source": "/q", "destination": "/api/q.js" },
+    { "source": "/api/q.js", "destination": "/api/q.js" }
   ]
 }
